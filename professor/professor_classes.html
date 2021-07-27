@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<head>
+  <title>I Am (Still) Here!</title>
+	<link rel="icon" type="image/png" href="/img/favicon.png"/>
+</head>
+<link rel="stylesheet" type="text/css" href="/style.css">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata">
+<!--<script src="https://code.jscharting.com/latest/jscharting.js"></script>-->
+<script src='https://cdn.plot.ly/plotly-2.0.0.min.js'></script>
+
+
+<ul class="navbar">
+	<li class="item-left" style="padding-top: 0"><a href="/professor/courses" class="name monserrat-black">I AM (STILL) HERE!</a></li>
+	<li class="item-left" style="padding-top: 3px"><span class="name roboto-light" id="IST_NAME"></span></li>
+
+	<li class="item-right"><a href="/logout" class="btn-white"><img src="/img/logout.svg" class="img-button"> Log Out</a></li>
+	<li class="item-right" id="admin" style="display: none"><a href="/admin" class="btn-white" style="margin-right: 10px"><img src="/img/admin.svg" class="img-button"> Administration</a></li>
+</ul>
+
+<div class="container inlineblock" id="container1" style="display: inline-block">
+	<div id="courseOn">
+		Academic Term:
+		<select id="course_select" onchange="changeAcademicTerm()">
+			<template id="courseOnTemplate">
+				<option></option>
+			</template>
+		</select>
+	</div>
+
+	<div class="menu-container" id="normal_menu">
+		<div class="menu-item item-left menu-button"></div>
+
+		<div class="menu-item item-left menu-title">
+			Your courses:
+		</div>
+
+		<div class="menu-item item-right menu-button">
+			<a class="previous round" href="#"
+				onclick="toggleEdit()"
+				title="Import students">
+				<span class="import">&#x2B07;</span>
+			</a>
+		</div>
+
+
+	</div>
+
+	<div id="editDiv" style="display:none">
+		<div class="menu-container">
+			<div class="menu-item item-left menu-button"></div>
+
+			<div class="menu-item item-left menu-title">
+				Import students:
+			</div>
+
+			<div class="menu-item item-right menu-button">
+				<a id="importstudentsbutton" class="previous round" href="#"
+					onclick="toggleEdit()"
+					title="Import students">
+					<span class="import">&#x2B07;</span>
+				</a>
+			</div>
+		</div>
+
+
+		<form id="importStudents" method="post">
+			<p>Format: <span style="font-family: monospace;">student_ist_id,student_number,student_name</span></p>
+			<p>Line format: <span style="font-family: monospace;">ist187664, 87664, Inês Albano</span></p>
+
+			<div id="courseIDOn">
+				Course: 
+				<select id="courseID_select" name="courseID">
+			  		<template id="courseIDOnTemplate">
+			  			<option></option>
+			  		</template>
+				</select>
+			</div>
+
+			<table class="invisible-table" style="margin-bottom: 4px">
+				<tr>
+					<td>
+
+					</td>
+					<td>
+						<textarea oninput="verifyTextArea()" name="file_input" id="myFile_students" class="textarea_input"></textarea>
+					</td>
+				</tr>
+			</table>
+
+			<button type="button" id="import_button" onclick="sendFileAsForm()" disabled>Import</button>
+			<button type="button" onclick="cancelImport()">Cancel</button>
+			
+		</form>
+	</div>
+		<table id="courseListTable" class="table-margin">
+			<tr>
+				<th>ID</th>
+				<th>Name</th>
+				<th>Professors</th>
+				<th>Students</th>
+				<th>Shifts</th>
+			</tr>
+
+			<template id="courseListTemplate">
+				<tr class="courserow clickable">
+					<td class="courseid"></td>
+					<td class="coursename"></td>
+					<td class="courseprofessors"></td>
+					<td class="coursestudents"></td>
+					<td class="courseshifts"></td>
+					<td><button onclick="window.location.replace('/professor/new?c=' + this.closest('tr').mycourseid)"><img src="/img/lupa.svg" class="img-button"></button></td>
+					<td><button onclick="switchView(2, this.closest('tr').mycourseid)"><img src="/img/statistics.svg" class="img-button"></button></td>
+					<td><button onclick="manuallyDeleteCourse(this)"><img src="/img/delete.svg" className="img-button" width="20px"></button></td>
+				</tr>
+			</template>
+		</table>
+		<p></p>
+		<div class="item-right">
+			<a class='btn-blue' href="#" id="addCoursebtn"
+			   onclick=displayOptionBtn()
+			   title="Create course">
+				<span><img src="/img/add.svg" class="img-button"> Add Course</span>
+			</a>
+		</div>
+		<div class="item-right">
+			<a class='btn-blue' id='newCourse' href="#" style="display: none"
+			   onclick="goTo('/professor/addcourse')"
+			   title="Create course">
+				<span><img src="/img/add.svg" class="img-button"> Add new course</span>
+			</a>
+		</div>
+		<div class="item-right">
+			<a class='btn-blue' id='newCourseFenix' href="#" style="display: none; margin-right: 10px"
+			   onclick="goTo('/professor/addcourseFenix')"
+			   title="Create course from Fenix">
+				<span><img src="/img/add.svg" class="img-button"> Add new course from Fénix</span>
+			</a>
+		</div>
+	</div>
+</div>
+
+<div class="container inlineblock" id="container2" style="display: none">
+	<div class="menu-container">
+		<div class="menu-item item-left menu-button">
+			<a href="/professor/classes" class="previous round">&#8249;</a>
+		</div>
+
+		<div class="menu-item item-left menu-title">Attendances per student</div>
+	</div>
+
+	<div>
+		<div id="chartDiv" style="width: 100%; height:1000px;"></div>
+	</div>
+</div>
+
+<script>
+	checkIfAdmin();
+
+	function checkIfAdmin(){
+		let xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if(this.readyState === 4 && this.status === 200) {
+				if (JSON.parse(this.responseText)){
+					document.getElementById('admin').style.display = '';
+				}
+			}
+		};
+
+		xhttp.open("GET", '/api/isAdmin', true);
+		xhttp.send();
+	}
+
+function goTo(url) {
+	window.location.replace(url);
+}
+
+// COURSES
+
+isImportingStudents = false;
+
+// regular expression
+var regex_line = /^ist\d\d\d\d\d\d\d?,\d\d\d\d\d\d?,[^,]+$/;
+var myFile_students = document.getElementById("myFile_students");
+var import_button = document.getElementById("import_button");
+
+function displayOptionBtn() {
+	document.getElementById('newCourse').style.display = '';
+	document.getElementById('newCourseFenix').style.display = '';
+	document.getElementById('addCoursebtn').style.display = 'none';
+}
+
+function verifyTextArea() {
+	var text = myFile_students.value;
+	var lines = text.split('\n');
+
+	for(let l of lines) {
+		if(!l.match(regex_line)) {
+			console.log('Invalid line:', l);
+			myFile_students.classList.add("invalidLine");
+			import_button.disabled = true;
+			return;
+		}
+	}
+	import_button.disabled = false;
+	myFile_students.classList.remove("invalidLine");
+}
+
+function toggleEdition() {
+	document.getElementById("editDiv").style.display = "";
+	document.getElementById("normal_menu").style.display = "none";
+	document.getElementById("courseOn").style.display = "none";
+	document.getElementById("courseListTable").style.display = "none";
+	document.getElementById("importstudentsbutton").classList.add("active");
+
+	isImportingStudents = true;
+}
+
+function cancelImport() {
+	document.getElementById("editDiv").style.display = "none";
+	document.getElementById("normal_menu").style.display = "";
+	document.getElementById("courseOn").style.display = "";
+	document.getElementById("courseListTable").style.display = "";
+	document.getElementById("importstudentsbutton").classList.remove("active");
+
+	isImportingStudents = false;
+}
+
+function toggleEdit() {
+	if(isImportingStudents) {
+		return cancelImport();
+	} else {
+		return toggleEdition();
+	}
+}
+
+function sendFileAsForm(){
+	let formEl = document.getElementById("importStudents");
+	let data = new FormData(formEl);
+	let o = {};
+	for(let e of data) {
+		o[e[0]] = e[1];
+	}
+	
+	let json_string = JSON.stringify(o);
+	let xhttp = new XMLHttpRequest();
+	let url = "/api/importstudents";
+		xhttp.onreadystatechange = function() {
+			if(this.readyState === 4 && this.status === 200) {
+				toggleEdit();
+				document.getElementById("myFile_students").value = "";
+			}
+	}
+	xhttp.open("POST", url, true);
+	xhttp.send(json_string);
+}
+
+function addCourse(table, template, courseID, coursename) {
+	var tr_clone = template.content.querySelector("tr").cloneNode(true);
+	var tds = tr_clone.children;
+
+	tr_clone.mycourseid = courseID;
+
+	for(let x = 0; x < tds.length-3; x++) {
+		tds[x].innerText = arguments[x+2];
+		tds[x].onclick = function() {
+			window.location.replace("/professor/new?c=" + courseID);
+		};
+	}
+
+	table.appendChild(tr_clone);
+}
+
+function addProfessortoCourseTable(table, template, courseID) {
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				let profs = JSON.parse(this.responseText);
+				for (let row of table.rows) {
+					if (row.cells[0].innerText === courseID && row.cells[2].innerText === 'undefined'){
+						row.cells[2].innerText = ''+profs.rows.length;
+						row.cells[2].style.textAlign = 'center';
+					}
+				}
+			} else {
+				console.log("Error loading professors:", this.status);
+			}
+		}
+	};
+	xhttp.open("GET", "/api/professorsbycourse?c="+courseID, true);
+	xhttp.send();
+}
+
+function addStudentstoCourseTable(table, template, courseID) {
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				let st = JSON.parse(this.responseText);
+				for (let row of table.rows) {
+					if (row.cells[0].innerText === courseID && row.cells[3].innerText === 'undefined'){
+						row.cells[3].innerText = ''+ st.length;
+						row.cells[3].style.textAlign = 'center';
+					}
+				}
+			} else {
+				console.log("Error loading students:", this.status);
+			}
+		}
+	};
+	xhttp.open("GET", "/api/studentsbycourse?c="+courseID, true);
+	xhttp.send();
+}
+
+function addShiftstoCourseTable(table, template, courseID) {
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				let s = JSON.parse(this.responseText);
+				for (let row of table.rows) {
+					if (row.cells[0].innerText === courseID) {
+						row.cells[4].innerText = ''+ s.length;
+						row.cells[4].style.textAlign = 'center';
+						break;
+					}
+				}
+			} else {
+				console.log("Error loading shifts:", this.status);
+			}
+		}
+	};
+	xhttp.open("GET", "/api/shiftsbycourse?c="+courseID, true);
+	xhttp.send();
+}
+
+
+function showCourses(courses) {
+	var template = document.getElementById("courseListTemplate");
+	var table = document.getElementById("courseListTable");
+
+	removeTrs(table.getElementsByTagName("tr"));
+
+	for(let i = 0; i < courses.length; i++) {
+		addCourse(table, template, courses[i].courseID, courses[i].courseName);
+		addProfessortoCourseTable(table, template, courses[i].courseID);
+		addStudentstoCourseTable(table, template, courses[i].courseID);
+		addShiftstoCourseTable(table, template, courses[i].courseID);
+
+	}
+}
+
+function loadCourses(url, academicTerm) {
+	if(academicTerm) {
+		url += "?ac=" + academicTerm;
+	}
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				var courses = JSON.parse(this.responseText);
+				showCourses(courses);
+				showCourseID(courses);
+			} else {
+				console.log("Error loading courses:", this.status);
+			}
+		}
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+function showCourseID(json) {
+	var courseID = json;
+	var template = document.getElementById("courseIDOnTemplate");
+	var select = document.getElementById("courseID_select");
+
+	for(let i = 0; i < courseID.length; i++) {
+		var option = template.content.querySelector("option").cloneNode(true);
+		option.value = courseID[i].courseID;
+		option.innerText = courseID[i].courseName + " (" + courseID[i].courseID + ")";
+		select.appendChild(option);
+	}
+};
+
+function loadName(url) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				document.getElementById("IST_NAME").innerHTML = this.responseText;
+			} else {
+				document.getElementById("IST_NAME").innerHTML = "<i>error getting username: " + this.status + "</i>";
+			}
+		}
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+function loadAcademicTerms(url) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				var json = JSON.parse(this.responseText);
+				showAcademicTerms(json);
+			}
+		}
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+function removeTrs(old_tr) {
+	for(let l = old_tr.length-1; l > 0; l--) {
+		old_tr[l].parentElement.removeChild(old_tr[l]);
+	}
+}
+
+function showAcademicTerms(json) {
+	let academicTerms = json;
+	let template = document.getElementById("courseOnTemplate");
+	let select = document.getElementById("course_select");
+	let sortAcademicTerms = [];
+
+
+	for(let i = 0; i < academicTerms.length; i++) {
+		let term_split = academicTerms[i].academicTerm.split(' ');
+		let option_text = term_split[0]
+		for (let i = 1; i < term_split.length; ++i){
+			option_text += ' ' + term_split[i]
+		}
+		sortAcademicTerms.push({value: academicTerms[i].academicTerm, text: term_split[term_split.length-1]+term_split[0]});
+	}
+
+	sortAcademicTerms.sort(function(a, b) {
+		if(a.text < b.text) {
+			return -1;
+		} else if(a.text > b.text) {
+			return 1;
+		}
+		return 0;
+	});
+
+	for(let i = 0; i < sortAcademicTerms.length; i++) {
+		let option = template.content.querySelector("option").cloneNode(true);
+		option.value = sortAcademicTerms[i].value;
+		option.innerText = sortAcademicTerms[i].value;
+		select.appendChild(option);
+	}
+
+	select.selectedIndex = sortAcademicTerms.length-1;
+	loadCourses("/api/courses", sortAcademicTerms[sortAcademicTerms.length-1].value);
+}
+
+function changeAcademicTerm() {
+	let select = document.getElementById("course_select");
+	loadCourses("/api/courses", select.value);
+}
+
+function switchView(arg, courseID) {
+	switch (arg) {
+		case 1: {
+			document.getElementById('container1').style.display = 'inline-block';
+			document.getElementById('container2').style.display = 'none';
+			break;
+		}
+		case 2: {
+			document.getElementById('container1').style.display = 'none';
+			document.getElementById('container2').style.display = 'inline-block';
+			loadChart(courseID)
+			break;
+		}
+	}
+}
+
+function loadChart(courseID){
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				let data = JSON.parse(this.responseText)
+
+				let xp = []
+				let yp = []
+				data.map(d => {
+					xp.push(d.count)
+					yp.push(d.ist_id)
+				});
+
+				let chart = [{
+					type: 'bar',
+					x: xp,
+					y: yp,
+					orientation: 'h'
+				}]
+
+				let layout = {
+					xaxis: {
+						tickmode: 'linear',
+						tick0: 1,
+						dtick: 1
+					}
+				}
+				Plotly.newPlot('chartDiv', chart, layout);
+			} else {
+				console.log("Error loading chart:", this.status);
+			}
+		}
+	};
+
+	xhttp.open("GET", "/api/attendanceflow?c="+courseID, true);
+	xhttp.send();
+}
+
+loadName("/api/name");
+//loadAcademicTerms("/api/academicTerms");
+loadAcademicTerms("/api/existingacademicterms");
+switchView(1);
+
+
+function manuallyDeleteCourse(btn){
+	let o = {};
+	o.courseID = btn.closest('tr').children[0].innerText;
+	let json_string = JSON.stringify(o);
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if (this.status === 200) {
+				switchView(1);
+				//removeShiftForm_after();
+			} else {
+				console.log("Error removing course:", this.status);
+				alert("<strong>Error</strong> removing course. Try again please.")
+			}
+		}
+	};
+	xhttp.open("POST", '/api/manuallyRemoveCourse', true);
+	xhttp.send(json_string);
+}
+
+	document.onkeypress = function (event) {
+		if (event.code === 'NumpadAdd' || event.code === 'BracketLeft') {
+			let d = new Date();
+			console.log('begining counting...')
+			localStorage.setItem('click_counter', '0')
+			localStorage.setItem('duration', d.getTime().toString())
+		} else if (event.code === 'NumpadSubtract' || event.code === 'Slash') {
+			let d = new Date();
+			console.log('finished counting...')
+			console.log('clicks: ', localStorage.getItem('click_counter'))
+			console.log('duration: ', (Number(d.getTime())-Number(localStorage.getItem('duration')))/1000)
+		}
+	}
+
+	document.onmousedown = function(event) {
+		if (event.button === 0)
+			localStorage.setItem('click_counter', (parseInt(localStorage.getItem('click_counter'))+1).toString())
+	}
+
+
+</script>

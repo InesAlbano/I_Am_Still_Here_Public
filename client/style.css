@@ -1,0 +1,53 @@
+body {
+	font-family: sans-serif;
+}
+
+a {
+	text-decoration: none;
+}
+a:hover{
+	text-decoration: underline;
+}
+
+#input_student {
+	width: 210px;
+	height: 40px;
+	font-size: 24px;
+}
+
+button{
+    height:44px;
+    width:100px;
+    padding: 4px 7px;
+    font-size: 24px;
+}
+
+#butoes {
+	margin: auto;
+	height: 70px;
+	width: 210px;
+}
+
+p{
+	text-align: center;
+}
+
+.expired {
+	color: DarkRed;
+	font-family: sans-serif !important;
+}
+
+#randomcode {
+	font-size: 100px;
+	font-family: monospace;
+}
+
+nav {
+	width: 100%;
+	height: 30px;
+	text-align: center;
+}
+
+nav span{
+	margin: 7px;
+}

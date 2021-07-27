@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<head>
+  <title>I Am (Still) Here!</title>
+	<link rel="icon" type="image/png" href="/img/favicon.png"/>
+</head>
+
+<link rel="stylesheet" type="text/css" href="/style.css">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata">
+
+<!-- Top banner -->
+<ul class="navbar">
+	<li class="item-left" style="padding-top: 0"><a href="/professor/courses" class="name monserrat-black">I AM (STILL) HERE!</a></li>
+	<li class="item-left" style="padding-top: 3px"><span class="name roboto-light" id="IST_NAME"></span></li>
+
+	<li class="item-right"><a href="/logout" class="btn-white"><img src="/img/logout.svg" class="img-button"> Log Out</a></li>
+</ul>
+<!-- Top banner -->
+
+<div class="container inlineblock" id="maincontainer">
+
+	<div id="newCourse_view" style="display:none">
+	
+		<div class="container inlineblock" id="newCourse_personalization">
+
+			<div class="menu-container">
+				<div class="menu-item item-left">
+					<a href="/professor/courses" class="previous round">&#8249;</a>
+				</div>
+
+				<div class="menu-item item-left menu-title">
+					Personalize the course:
+				</div>
+			</div>
+
+			<table id="newCoursePersonalization" class="table-margin"> <!-- Create New Course -->
+				<form id="formId" method="post">
+					<tr>
+						<td>
+							Academic Term:
+						</td>
+						<td>
+							<select id="academicTerm_select" name="academicTerm" onchange="">
+								<template id="academicTermTemplate">
+									<option></option>
+								</template>
+							</select>
+						</td>
+					</tr>
+					<tr title="Type of code">
+						<td>Course name:</td>
+						<td>
+							<input class="inputbigger" type="text" name="courseName" placeholder="Advanced Programming" required>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Course ID:
+						</td>
+						<td>
+							<input class="inputbigger" type="text" name="courseID" placeholder="AP201819" required>
+						</td>
+					</tr>
+				</form>
+			</table>
+
+		<div style="text-align: center">
+			<button class="newCourse-button"
+				onclick="sendForm()" title="Create a new course">
+					Create
+			</button>
+		</div>
+
+	</div>
+
+	</div>
+
+	<div id="newFenixCourse_view" style="display:none">
+
+		<div class="container inlineblock" id="newFenixCourse_personalization">
+
+			<div class="menu-container">
+				<div class="menu-item item-left">
+					<a href="/professor/courses" class="previous round">&#8249;</a>
+				</div>
+
+				<div class="menu-item item-left menu-title">
+					Personalize the course:
+				</div>
+			</div>
+
+			<table id="newFenixCoursePersonalization" class="table-margin"> <!-- Create New Course -->
+				<form id="formFenixId" method="post">
+					<tr>
+						<td>
+							Academic Year:
+						</td>
+						<td>
+							<select id="academicFenixTerm_select" name="academicTerm" onchange="findDegrees()">
+								<template id="academicFenixTermTemplate">
+									<option></option>
+								</template>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>Degree:</td>
+						<td>
+							<select id="degree" name="degree" class="inputbigger" onchange="findCoursesForDegree()" required></select>
+							<template id="degreeTemplate">
+								<option></option>
+							</template>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Course:
+						</td>
+						<td>
+							<select id="course" name="course" class="inputbigger" required></select>
+							<template id="courseTemplate">
+								<option></option>
+							</template>
+						</td>
+					</tr>
+				</form>
+			</table>
+
+			<div style="text-align: center">
+				<button class="newCourse-button"
+						onclick="sendFenixForm()" title="Create course">
+					Create
+				</button>
+			</div>
+
+		</div>
+
+	</div>
+
+</div>
+
+
+
+<script>
+
+function removeTrs(old_tr) {
+	for(let l = old_tr.length-1; l > 0; l--) {
+		old_tr[l].parentElement.removeChild(old_tr[l]);
+	}
+}
+
+function goTo(url) {
+	window.location.replace(url);
+}
+
+function showAcademicYear(json) {
+	let academictermcombo = json
+
+	let template = document.getElementById("academicTermTemplate");
+	let select = document.getElementById("academicTerm_select");
+	for(let i = 0; i < academictermcombo.length; i++) {
+		let option = template.content.querySelector("option").cloneNode(true);
+		option.value = academictermcombo[i].academicTerm;
+		option.innerText = academictermcombo[i].academicTerm;
+		select.appendChild(option);
+	}
+
+
+	let currentYear = new Date().getFullYear();
+	let previousYear = currentYear - 1;
+	let nextYear = currentYear + 1;
+	let yearcombo = [];
+	yearcombo.push(previousYear + "/" + currentYear);
+	yearcombo.push(currentYear + "/" + nextYear);
+
+	let templateFenix = document.getElementById("academicFenixTermTemplate");
+	let selectFenix = document.getElementById("academicFenixTerm_select");
+	for(let i = 0; i < yearcombo.length; i++) {
+		let option = templateFenix.content.querySelector("option").cloneNode(true);
+		option.value = yearcombo[i];
+		option.innerText = yearcombo[i];
+		selectFenix.appendChild(option);
+	}
+}
+
+function loadName(url) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				document.getElementById("IST_NAME").innerHTML = this.responseText;
+			} else {
+				document.getElementById("IST_NAME").innerHTML = "<i>error getting username: " + this.status + "</i>";
+			}
+		}
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+function showInnactiveCourses(courses_wrapper) {
+	var template = document.getElementById("FenixCourses_template");
+	var table = document.getElementById("inactiveCoursePersonalization");
+	var courses = courses_wrapper;
+	removeTrs(table.getElementsByTagName("tr"));
+
+	var noCoursesDiv = document.getElementById("nocoursesinfo");
+	var courseTitle = document.getElementById("courseTitle");
+
+	if(courses.length > 0) {
+		noCoursesDiv.style.display = "none";
+		courseTitle.style.display = "";
+		for(let i = 0; i < courses.length; i++) {
+			let courses_i = courses[i];
+			addInnactiveCourses(table, template, courses_i.courseName, courses_i.CourseID);
+		}
+	} else {
+		noCoursesDiv.style.display = "";
+		courseTitle.style.display = "none";
+	}
+		
+};
+
+function addInnactiveCourses(table, template, courseName, courseID) {
+
+	var tr_clone = template.content.querySelector("tr").cloneNode(true);
+	var tds = tr_clone.children;
+	
+	for(let x = 0; x < tds.length - 1; x++) {	//a partir de "date"
+		tds[x].innerText = arguments[x+2];
+	}
+
+	tr_clone.onclick = function() {
+	};
+
+	table.appendChild(tr_clone);
+}
+function sendFenixForm(){
+	let formEl = document.getElementById("formFenixId");
+	if(!formEl.checkValidity()) {
+		formEl.reportValidity();
+		return;
+	}
+
+	let chosen_course = document.getElementById("course").options[document.getElementById("course").selectedIndex]
+
+	let o = {};
+	o['academicTerm'] = chosen_course.class
+	o['courseName'] = chosen_course.text.split(' - ')[0]
+	o['courseID'] = chosen_course.text.split(' - ')[1]
+	o['fenixID'] = chosen_course.value
+
+
+	let json_string = JSON.stringify(o);
+
+	let divOver = document.createElement("div");
+	divOver.className += "overlay";
+	document.body.appendChild(divOver);
+
+	let div = document.createElement("div");
+	div.classList.add("confirm");
+
+	let spanCancel = document.createElement("span");
+	spanCancel.classList.add("cancelbtn");
+	spanCancel.onclick = function() {
+		this.parentElement.style.display='none';
+		while (document.getElementsByClassName('overlay')[0]) {
+			document.getElementsByClassName('overlay')[0].remove();
+		}
+	};
+	spanCancel.innerText = "Cancel";
+
+	let spanConfirm = document.createElement("span");
+	spanConfirm.classList.add("confirmbtn");
+	spanConfirm.onclick = function() {
+		//TODO function goes here confirm
+		let xhttp = new XMLHttpRequest();
+		let url = "/api/addcourse";
+		xhttp.onreadystatechange = function() {
+			if(this.readyState === 4 && this.status === 200) {
+				goTo('/professor/courses');
+			}
+		};
+
+		xhttp.open("POST", url, true);
+		xhttp.send(json_string);
+
+
+		this.parentElement.style.display='none';
+		while (document.getElementsByClassName('overlay')[0]) {
+			document.getElementsByClassName('overlay')[0].remove();
+		}
+		return
+	};
+	spanConfirm.innerText = "Confirm";
+
+	div.innerText = "Are you sure you want to add this course?\n\n";
+
+	document.body.appendChild(div);
+	div.appendChild(spanCancel);
+	div.appendChild(spanConfirm);
+}
+
+function sendForm(){
+	let formEl = document.getElementById("formId");
+	if(!formEl.checkValidity()) {
+		formEl.reportValidity();
+		return;
+	}
+	let data = new FormData(formEl);
+	let o = {};
+
+	for(let e of data) {
+		o[e[0]] = e[1];
+
+	}
+	
+	let json_string = JSON.stringify(o);
+
+	let divOver = document.createElement("div");
+	divOver.className += "overlay";
+	document.body.appendChild(divOver);
+
+	let div = document.createElement("div");
+	div.classList.add("confirm");
+
+	let spanCancel = document.createElement("span");
+	spanCancel.classList.add("cancelbtn");
+	spanCancel.onclick = function() {
+		this.parentElement.style.display='none';
+		while (document.getElementsByClassName('overlay')[0]) {
+			document.getElementsByClassName('overlay')[0].remove();
+		}
+	};
+	spanCancel.innerText = "Cancel";
+
+	let spanConfirm = document.createElement("span");
+	spanConfirm.classList.add("confirmbtn");
+	spanConfirm.onclick = function() {
+		//TODO function goes here confirm
+		let xhttp = new XMLHttpRequest();
+		let url = "/api/addcourse";
+		xhttp.onreadystatechange = function() {
+			if(this.readyState === 4 && this.status === 200) {
+				goTo('/professor/courses');
+			}
+		};
+
+		xhttp.open("POST", url, true);
+		xhttp.send(json_string);
+
+
+		this.parentElement.style.display='none';
+		while (document.getElementsByClassName('overlay')[0]) {
+			document.getElementsByClassName('overlay')[0].remove();
+		}
+		return
+	};
+	spanConfirm.innerText = "Confirm";
+
+	div.innerText = "Are you sure you want to add this course?\n\n";
+
+	document.body.appendChild(div);
+	div.appendChild(spanCancel);
+	div.appendChild(spanConfirm);
+}
+
+function manuallyaddCourseToInUse(button_element, event) {
+	let courseID = button_element.parentElement.parentElement.childNodes[3].innerText;
+
+	let divOver = document.createElement("div");
+	divOver.className += "overlay";
+	document.body.appendChild(divOver);
+
+	let div = document.createElement("div");
+	div.classList.add("confirm");
+
+	let spanCancel = document.createElement("span");
+	spanCancel.classList.add("cancelbtn");
+	spanCancel.onclick = function() {
+		this.parentElement.style.display='none';
+		while (document.getElementsByClassName('overlay')[0]) {
+			document.getElementsByClassName('overlay')[0].remove();
+		}
+	};
+	spanCancel.innerText = "Cancel";
+
+	let spanConfirm = document.createElement("span");
+	spanConfirm.classList.add("confirmbtn");
+	spanConfirm.onclick = function() {
+		//TODO function goes here confirm
+		addCourseToInUse('/api/courseInUse', courseID, button_element);
+
+
+		this.parentElement.style.display='none';
+		while (document.getElementsByClassName('overlay')[0]) {
+			document.getElementsByClassName('overlay')[0].remove();
+		}
+		return
+	};
+	spanConfirm.innerText = "Confirm";
+
+	div.innerText = "Are you sure you add this course to the attendance list?\n\n";
+
+	document.body.appendChild(div);
+	div.appendChild(spanCancel);
+	div.appendChild(spanConfirm);
+	event.preventDefault();
+}
+
+function addCourseToInUse(url, courseID, button_element) {
+	var xhttp = new XMLHttpRequest();
+	var json = {courseID: courseID};
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				button_element.disabled=true;
+				goTo('/professor/courses');
+			} else {
+				console.log("Error in addCourseToInUse:", this.status);
+
+				let divOver = document.createElement("div");
+				divOver.className += "overlay";
+				document.body.appendChild(divOver);
+
+				let div = document.createElement("div");
+				div.classList.add("alert");
+
+				let spanCancel = document.createElement("span");
+				spanCancel.classList.add("closebtn");
+				spanCancel.onclick = function() {
+					this.parentElement.style.display='none';
+					while (document.getElementsByClassName('overlay')[0]) {
+						document.getElementsByClassName('overlay')[0].remove();
+					}
+				};
+				spanCancel.innerText = '×';
+
+				div.innerHTML = "<strong>Error</strong> adding course. Try again please.";
+
+				div.appendChild(spanCancel);
+				document.body.appendChild(div);
+			}
+		}
+	};
+
+	xhttp.open("POST", url, true);
+	xhttp.send(JSON.stringify(json));
+}
+
+function switchView(arg){
+	switch(arg) {
+		case 0:
+			//document.getElementById("inactiveCourses_view").style.display = "";
+			document.getElementById("newCourse_view").style.display = "none";
+			document.getElementById("newFenixCourse_view").style.display = "none";
+			break;
+		case 1:
+			//document.getElementById("inactiveCourses_view").style.display = "none";
+			document.getElementById("newCourse_view").style.display = "";
+			document.getElementById("newFenixCourse_view").style.display = "none";
+			break;
+		case 2:
+			//document.getElementById("inactiveCourses_view").style.display = "none";
+			document.getElementById("newCourse_view").style.display = "none";
+			document.getElementById("newFenixCourse_view").style.display = "";
+			findDegrees(document.getElementById("academicFenixTerm_select").value)
+			findCoursesForDegree(document.getElementById("academicFenixTerm_select").value, '2761663979717')
+			break;
+		default:
+			console.log("unknown arg", arg);
+			break;
+	}
+}
+
+function findDegrees(a=null){
+	let academic_year = (a ? a :document.getElementById("academicFenixTerm_select").value)
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				let json_degrees = JSON.parse(this.responseText)
+				let template = document.getElementById("degreeTemplate");
+				let select = document.getElementById("degree");
+				select.innerHTML = ''
+				for (let i = 0; i < json_degrees.length; ++i) {
+					let option = template.content.querySelector("option").cloneNode(true);
+					option.value = json_degrees[i]['id'];
+					option.innerText = json_degrees[i]['acronym'] + ' - ' + json_degrees[i]['name'];
+					select.appendChild(option);
+				}
+
+				// TODO search bar
+			} else {
+				//document.getElementById("IST_NAME").innerHTML = "<i>error getting username: " + this.status + "</i>";
+			}
+		}
+	};
+
+	xhttp.open("GET", '/api/getDegrees?ac='+academic_year, true);
+	xhttp.send();
+}
+
+function findCoursesForDegree(a=null, d=null){
+	let academic_year = (a ? a : document.getElementById("academicFenixTerm_select").value);
+	let degree = (d ? d : document.getElementById("degree").value)
+
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				let json_courses = JSON.parse(this.responseText)
+
+				let template = document.getElementById("courseTemplate");
+				let select = document.getElementById("course");
+				select.innerHTML = ''
+				for (let i = 0; i < json_courses.length; ++i) {
+					let option = template.content.querySelector("option").cloneNode(true);
+					option.value = json_courses[i]['id'];
+					option.class = json_courses[i]['academicTerm'];
+					option.innerText = json_courses[i]['acronym'] + ' - ' + json_courses[i]['name'];
+					select.appendChild(option);
+				}
+
+				// TODO search bar
+			} else {
+				//document.getElementById("IST_NAME").innerHTML = "<i>error getting username: " + this.status + "</i>";
+			}
+		}
+	};
+
+	xhttp.open("GET", '/api/getCourseDegrees?ac='+academic_year+'&de='+degree, true);
+	xhttp.send();
+}
+
+
+loadName("/api/name");
+
+function loadAcademicTerms(url) {
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				let json = JSON.parse(this.responseText);
+				showAcademicYear(json);
+			}
+		}
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+loadAcademicTerms("/api/existingacademicterms");
+
+
+switchView(parseInt(getCookie('view')))
+
+
+function getCookie(name) {
+	let nameEQ = name + "=";
+	let ca = document.cookie.split(';');
+	for(let i=0;i < ca.length;i++) {
+		let c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1);
+		if (c.indexOf(nameEQ) != -1) return c.substring(nameEQ.length,c.length);
+	}
+	return null;
+}
+
+document.onkeypress = function (event) {
+	if (event.code === 'NumpadAdd' || event.code === 'BracketLeft') {
+		let d = new Date();
+		console.log('begining counting...')
+		localStorage.setItem('click_counter', '0')
+		localStorage.setItem('duration', d.getTime().toString())
+	} else if (event.code === 'NumpadSubtract' || event.code === 'Slash') {
+		let d = new Date();
+		console.log('finished counting...')
+		console.log('clicks: ', localStorage.getItem('click_counter'))
+		console.log('duration: ', (Number(d.getTime())-Number(localStorage.getItem('duration')))/1000)
+	}
+}
+
+document.onmousedown = function(event) {
+	if (event.button === 0)
+		localStorage.setItem('click_counter', (parseInt(localStorage.getItem('click_counter'))+1).toString())
+}
+
+document.onkeypress = function (event) {
+	if (event.code === 'NumpadAdd' || event.code === 'BracketLeft') {
+		let d = new Date();
+		console.log('begining counting...')
+		localStorage.setItem('click_counter', '0')
+		localStorage.setItem('duration', d.getTime().toString())
+	} else if (event.code === 'NumpadSubtract' || event.code === 'Slash') {
+		let d = new Date();
+		console.log('finished counting...')
+		console.log('clicks: ', localStorage.getItem('click_counter'))
+		console.log('duration: ', (Number(d.getTime())-Number(localStorage.getItem('duration')))/1000)
+	}
+}
+
+document.onmousedown = function(event) {
+	if (event.button === 0)
+		localStorage.setItem('click_counter', (parseInt(localStorage.getItem('click_counter'))+1).toString())
+}
+
+</script>

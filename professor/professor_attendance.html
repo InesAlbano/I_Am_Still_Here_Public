@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<head>
+  <title>I Am (Still) Here!</title>
+	<link rel="icon" type="image/png" href="/img/favicon.png"/>
+</head>
+
+<link rel="stylesheet" type="text/css" href="/style.css">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata">
+
+<!--<ul>
+	<li style="float:left"><span class="logoname">I Am Here!</span></li>
+
+	<li style="float:right"><a href="/logout">Log Out</a></li>
+	<li style="float:right"><span class="name" id="IST_NAME"></span></li>
+</ul>-->
+<!-- Top banner -->
+<ul class="navbar">
+	<li class="item-left" style="padding-top: 0"><a href="/professor/courses" class="name monserrat-black">I AM (STILL) HERE!</a></li>
+	<li class="item-left" style="padding-top: 3px"><span class="name roboto-light" id="IST_NAME"></span></li>
+
+	<li class="item-right"><a href="/logout" class="btn-white"><img src="/img/logout.svg" class="img-button"> Log Out</a></li>
+</ul>
+<!-- Top banner -->
+
+
+<div class="center" id="maincontainer">
+
+<div class="container inlineblock" id="attendance_personalization">
+	<div class="menu-container">
+		<div id="backbutton" class="menu-item item-left menu-button">
+			<a href="/professor/new" id="goBackToHistoryTable" class="previous round">&#8249;</a>
+		</div>
+
+		<div class="menu-item item-right menu-button">
+			<a class="previous round" href="#"
+				onclick="toggleImport()" id="import_button"
+				title="Import attendance">
+				<span class="import">&#x2B07;</span>
+			</a>
+		</div>
+
+		<div id="importattedancetitle" style="display:none" class="menu-item item-left menu-title">
+				Import an attendance:
+		</div>
+
+		<div id="infotitle" class="menu-item item-left menu-title">
+			<span>
+				Personalize the attendance checking:
+			</span>
+		</div>
+
+	</div>
+
+	<div id="importAttendanceDiv" style="display:none">
+		<p>Format: <span class="mono">student_number, type of attendance (ok or late)</span><p>
+			<form id="importAttendanceID" method="post">
+				<table class="invisible-table" style="margin-bottom: 4px">
+					<tr>
+						<td >Example (on time):</td>
+						<td class="mono">ist182083,ok</td>
+					</tr>
+					<tr>
+						<td>Example (late):</td>
+						<td class="mono">ist182083,late</td>
+					</tr>
+					<tr>
+						<td>
+							Professor:
+						</td> 
+						<td>
+							<input id="professor_number" name="professor_number" pattern="^ist\d\d\d\d\d\d$" type="text" placeholder="istXXXXXX"></input>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Shift:
+						</td> 
+						<td>
+							<input id="importattendance_shift" name="shift" type="text"></input>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Class number:
+						</td> 
+						<td>
+							<input name="class_number" type="number"></input>
+						</td>
+					</tr>
+
+					<tr>
+						<td>
+							Title:
+						</td> 
+						<td>
+							<input id="" name="mytitle" type="text" placeholder="(optional)"></input>
+						</td>
+					</tr>
+
+					<tr title="Invited lecture or extraordinary class">
+						<td></td>
+						<td>
+							<input type="checkbox" id="addIsExtra" name="is_extra" value="is_extra"> Extra Class
+						</td>
+					</tr>
+
+					<tr>
+						<td colspan="2">
+							<textarea oninput="verifyTextArea()" name="file_input" id="myFile_attendances" class="textarea_input"></textarea>
+						</td>
+					</tr>
+					
+				</table>
+
+				<button type="button" id="sendImportAttendance" onclick="sendFileAsForm();" disable>Import</button>
+				<button type="button" onclick="cancelImport()">Cancel</button>
+				
+			</form>
+		</div>
+
+		<table id="attendancePersonalization" class="table-margin">
+		<form id="formId" method="post">
+
+			<tr title="Class number">
+				<td>Number:</td>
+				<td>
+					<input id="class_number" type="number" name="number" placeholder="27">
+				</td>
+			</tr>
+
+			<tr title="Title">
+				<td>Title:</td>
+				<td>
+					<input class="inputbigger" id="inputTitle" type="text" name="title" placeholder="e.g. Invited Lecture">
+					<span title="Invited lecture or extraordinary class">
+						<input type="checkbox" name="is_extra" id="is_extra" value="is_extra"> Extra Class</span>
+				</td>
+			</tr>
+
+			<tr title="Type of code">
+				<td>Type:</td>
+				<td id="code_type">
+					<input type="radio" name="code_type" value="L" checked>Letters
+					<input type="radio" name="code_type" value="N">Numbers
+					<input type="radio" name="code_type" value="LN">Letters + Numbers
+				</td>
+			</tr>
+
+			<tr title="Number of characters of each code">
+				<td>Length:</td>
+				<td>
+					<select name="code_length" id="code_length" required>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6" selected="selected">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						</select> characters
+				</td>
+			</tr>
+			
+			<tr title="Time to type each code in seconds">	
+				<td>Time for each code:</td>
+				<td>
+					<select id="timetocomplete" name="time" required>
+						<option value="8">8</option>
+						<option value="9">9</option>
+						<option value="10" selected="selected">10</option>
+						<option value="11">11</option>
+						<option value="12">12</option>
+					</select> seconds
+				</td>
+			</tr>
+
+			<tr title="Number of consecutive codes that the students will need to type">
+				<td>Consecutive codes:</td>
+				<td>
+					<select id="consecutivecodesrequired" name="consecutivecodes" required>
+						<option value="2">2</option>
+						<option value="3" selected="selected">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+					</select>
+				</td>
+			</tr>
+
+			<tr title="Only enrolled students can attend this session">	
+				<td>Access:</td>
+				<td>
+					<input type="checkbox" name="onlyEnrolledStudents" value="true"></input>
+					Only allow enrolled students
+				</td>
+			</tr>
+			<tr title="Remote session">
+				<td>Session:</td>
+				<td>
+					<input type="checkbox" id='remotesession' name="remoteSession" value="true"></input>
+					Remote session
+				</td>
+			</tr>
+		</form>
+		</table>
+
+		<div id="createses_button" style="text-align: center">
+			<button class="Bigbutton" id="attendance-button"
+				onclick="sendForm()" title="Create a session">
+					Create session
+			</button>
+		</div>
+</div>
+
+<div id="attendance_links" class="container inlineblock" style="display:none">
+
+	<div class="menu-container">
+		<div class="menu-item item-left menu-button">
+			<a onclick="switchView(0)" class="previous round goBack" id="back_qrcode">&#8249;</a>
+		</div>
+	</div>
+	
+	<div class="text-center table-margin" id="attendance_qrcode" style="margin-top:-20px; margin: 0 auto"></div>
+	<p class="text-center" id="attendance_link" style="font-size: 40px"></p>
+
+</div>
+
+<div id="attendance_info" style="display:none">
+	<!--<a onclick="switchView(1)" class="previous round">&#8249;</a>-->
+
+	<p>Time remaining: <span id="time_remaining"></span>s</p>
+	<p>Insert <span id="view_consecutivecodes"></span> consecutive codes:</p>
+	<p><span id="randomcode"></span></p>
+
+	<div id="barra_remaining">
+	</div>
+
+	<p id="status"> </p>
+
+	<div class="text-center">
+	<button id="b_start" type="button"
+		onclick="switchView(2); startAttendance()"
+		title="Generate a new sequence">Start</button>
+	<button id="b_stop" type="button"
+		disabled="true"
+		onclick="stopAttendance(); switchView(1)"
+		title="Stop current sequence">Pause</button>
+</div>
+
+<div class="text-center" id="button_finishAttendance" style="display:none" onclick="closeAttendance(); goTo('/professor/new');">
+	<button>
+		End session
+	</button>
+</div>
+</div>
+
+<div id="studentspresent" style="display:none">
+	<p id="span_c">
+		Students attending the class (<span id="studentsCount"></span>):
+	</p>
+	<pre id="showStudents">
+
+	</pre>
+
+</div>
+
+<div class="text-center" id="buttons_startstop" style="display:none">
+	<button id="b_start" type="button"
+		onclick="switchView(2); startAttendance()"
+		title="Generate a new sequence">Start</button>
+	<button id="b_stop" type="button"
+		disabled="true"
+		onclick="stopAttendance(); switchView(1)"
+		title="Stop current sequence">Pause</button>
+</div>
+
+</div> <!-- final do container -->
+
+
+<script src="/qrcode.min.js"></script>
+
+<script>
+
+const urlParams = new URLSearchParams(window.location.search);
+let courseID = urlParams.get("c");
+let isImportingAttendance = false;
+let shift = urlParams.get("s");
+document.getElementById("importattendance_shift").value = shift;
+var regex_line = /^ist\d\d\d\d\d\d,(ok|late)$/;
+
+if(courseID && courseID !== 'undefined') {
+	var goBackToHistoryTable = document.getElementById("goBackToHistoryTable");
+	goBackToHistoryTable.href += "?c=" + courseID;
+}
+
+var students_count = 0;
+
+function goTo(url) {
+	url += window.location.search;
+	window.location.replace(url);
+}
+
+function toggleImport() {
+	if(isImportingAttendance) {
+		return cancelImport();
+	} else {
+		return importAttendance();
+	}
+}
+
+function importAttendance(){
+	document.getElementById("importattedancetitle").style.display = "";
+	document.getElementById("infotitle").style.display = "none";
+	document.getElementById("createses_button").style.display = "none";
+	document.getElementById("import_button").classList.add("active");
+	document.getElementById("backbutton").style.display = "none";
+	document.getElementById("attendancePersonalization").style.display = "none";
+	document.getElementById("importAttendanceDiv").style.display = "";
+	isImportingAttendance = true;
+}
+
+function cancelImport() {
+	document.getElementById("importattedancetitle").style.display = "none";
+	document.getElementById("infotitle").style.display = "";
+	document.getElementById("createses_button").style.display = "";
+	document.getElementById("import_button").classList.remove("active");
+	document.getElementById("backbutton").style.display = "";
+	document.getElementById("attendancePersonalization").style.display = "";
+	document.getElementById("importAttendanceDiv").style.display = "none";
+	isImportingAttendance = false;
+}
+
+var myFile_attendances = document.getElementById("myFile_attendances");
+var sendImportAttendance = document.getElementById("sendImportAttendance");
+
+function verifyTextArea() {
+	let text = myFile_attendances.value;
+	let lines = text.split('\n');
+
+	for(let l of lines) {
+		if(!l.match(regex_line)) {
+			console.log('Invalid line:', l);
+			myFile_attendances.classList.add("invalidLine");
+			sendImportAttendance.disabled = true;
+			return;
+		}
+	}
+	sendImportAttendance.disabled = false;
+	myFile_attendances.classList.remove("invalidLine");
+}
+
+function sendFileAsForm(){
+	let formEl = document.getElementById("importAttendanceID");
+	let data = new FormData(formEl);
+	let o = {};
+	for(let e of data) {
+		o[e[0]] = e[1];
+	}
+	o.courseID = courseID;
+	
+	let json_string = JSON.stringify(o);
+	let xhttp = new XMLHttpRequest();
+	let url = "/api/importattendance";
+		xhttp.onreadystatechange = function() {
+			if(this.readyState === 4 && this.status === 200) {
+				toggleImport();
+				formEl.reset();
+				goTo("/professor/new");	
+			}
+	}
+	xhttp.open("POST", url, true);
+	xhttp.send(json_string);
+}
+
+var qrcode;
+
+function stopAttendance() {
+	loadStatus('/api/getcode/stop');
+}
+
+function generateQRCode(url) {
+	if(qrcode) {
+		qrcode.clear();
+		qrcode.makeCode(url);
+	}
+	else {
+		qrcode = new QRCode("attendance_qrcode", {
+			text: url,
+			width: 512,
+			height: 512,
+			colorDark : "#000000",
+			colorLight : "#ffffff",
+			correctLevel : QRCode.CorrectLevel.H
+		});
+	}
+}
+
+function loadName(url) {
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				document.getElementById("IST_NAME").innerHTML = this.responseText;
+			} else {
+				document.getElementById("IST_NAME").innerHTML = "<i>error getting username: " + this.status + "</i>";
+			}
+		}
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+var timer;
+
+function closeAttendance() {
+	stopAttendance();
+	loadStatus("/api/closeAttendance");
+}
+
+function startAttendance() {
+	timer = setInterval(loadStatusTimer, 1000);
+	loadStatus('/api/getcode');
+}
+
+function timeRemaining(time, maxTime) {
+	var barra_remaining = document.getElementById("barra_remaining");
+	if(time === maxTime) {
+		barra_remaining.style.transition = "none";
+	} else {
+		barra_remaining.style.transition = "";
+	}
+
+	barra_remaining.style.width = (100*(time/maxTime)) + "%";
+	barra_remaining.style.backgroundColor = "rgb(" + (255 - 255*(time/maxTime)) + ",0,0)";
+}
+
+function stopTimer() {
+	if(timer) {
+		clearInterval(timer);	
+	}
+}
+
+var randomID;
+
+function loadStatus(url) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4 && this.status === 200) {
+			//document.getElementById("status").innerHTML = this.responseText;
+			updateStatus(this.responseText);
+		}
+	};
+
+	var json = {};
+	json.randomID = randomID;
+	
+	var json_string = JSON.stringify(json);
+
+	xhttp.open("POST", url, true);
+	xhttp.send(json_string);
+}
+
+function updateStatus(jsonStr) {
+	let json = JSON.parse(jsonStr);
+	let code_element = document.getElementById("randomcode");
+	if(json.current_code === undefined) {
+		code_element.innerHTML = "&#8635;";
+		code_element.classList.add("loadingIcon");
+	} else if(json.current_code === "Expired") {
+		code_element.classList.add("expired");
+	} else {
+		code_element.classList.remove("loadingIcon");
+		code_element.classList.remove("expired");
+		code_element.innerHTML = json.current_code;
+	}
+	let showStudents = document.getElementById("showStudents");
+	let count = document.getElementById("studentsCount");
+	if(json.studentsList && json.studentsList.length > 0) {
+		students_count += json.studentsList.length;
+		count.innerHTML = students_count;
+		showStudents.innerHTML = json.studentsList.join('\n') + "\n" + showStudents.innerHTML;
+	}
+	
+	let time_remaining = document.getElementById("time_remaining");
+	time_remaining.innerHTML = json.time_ms;
+
+	timeRemaining(json.time_ms, json.total_time_ms/1000);
+
+	if(json.time_ms <= 3) {
+		time_remaining.classList.add('time_remaining_short');
+	} else {
+		time_remaining.classList.remove('time_remaining_short');
+	}
+	updateButtons(json.running);
+
+	if(json.running === false) {
+		stopTimer();
+	}
+}
+
+var state;
+
+function switchView(arg){
+	switch(arg) {
+		case 0:
+			document.getElementById("attendance_personalization").style.display = "";
+			document.getElementById("buttons_startstop").style.display = "none";
+			document.getElementById("button_finishAttendance").style.display = "none";
+			document.getElementById("attendance_links").style.display = "none";
+			document.getElementById("attendance_info").style.display = "none";
+			document.getElementById("maincontainer").classList.remove("left");
+			document.getElementById("maincontainer").classList.add("center");
+			document.getElementById("goBackToHistoryTable").style.display = "";
+			document.getElementById("buttons_startstop").classList.remove("margin-bottom");
+			break;
+		case 1:
+			if(state === 2) {
+				stopAttendance();
+			}
+			document.getElementById("back_qrcode").style.display = "";
+			document.getElementById("attendance_personalization").style.display = "none";
+			document.getElementById("goBackToHistoryTable").style.display = "none";
+			document.getElementById("buttons_startstop").style.display = "";
+			document.getElementById("button_finishAttendance").style.display = "none";
+			document.getElementById("attendance_links").style.display = "";
+
+			document.getElementById("attendance_link").style.fontSize='40px';
+			document.getElementById("attendance_link").style.width='100%';
+			document.getElementById("attendance_link").className='text-center';
+
+			document.getElementById("studentspresent").style.display = "none";
+			document.getElementById("attendance_info").style.display = "none";
+			document.getElementById("maincontainer").classList.remove("left");
+			document.getElementById("maincontainer").classList.add("center");
+			document.getElementById("buttons_startstop").classList.add("margin-bottom");
+
+			break;
+		case 2:
+			document.getElementById("buttons_startstop").classList.remove("margin-bottom");
+			document.getElementById("goBackToHistoryTable").style.display = "none";
+			document.getElementById("back_qrcode").style.display = "none";
+			document.getElementById("attendance_personalization").style.display = "none";
+			document.getElementById("buttons_startstop").style.display = "none";
+			document.getElementById("studentspresent").style.display = "";
+			document.getElementById("attendance_links").style.display = "";
+
+			document.getElementById("attendance_link").style.fontSize='30px';
+			document.getElementById("attendance_link").style.width='300px';
+			document.getElementById("attendance_link").style.wordWrap='break-word';
+			document.getElementById("attendance_link").style.whiteSpace='normal';
+			document.getElementById("attendance_link").style.margin='0 auto';
+			document.getElementById("attendance_link").className='text-center';
+
+
+			document.getElementById("maincontainer").classList.add("left");
+			document.getElementById("maincontainer").classList.remove("center");
+			document.getElementById("attendance_info").style.display = "";
+			document.getElementById("button_finishAttendance").style.display = "";
+			break;
+		default:
+			console.log("unknown arg", arg);
+			break;
+	}
+	state = arg;
+}
+
+function updateButtons(isStarted){
+	document.getElementById("b_start").disabled = isStarted;
+	document.getElementById("b_stop").disabled = !isStarted;
+}
+
+function loadStatusTimer() {
+	loadStatus('/api/status');
+}
+
+function sendForm(){
+	let formEl = document.getElementById("formId");
+	let data = new FormData(formEl);
+	let o = {};
+
+	if(courseID && courseID !== 'undefined') {
+		o.courseID = courseID;
+	}
+	if(shift && shift !== 'undefined') {
+		o.shift = shift;
+	}
+
+	for(let e of data) {
+		o[e[0]] = e[1];
+	}
+
+	if (window.location.href.split('?')[1].includes('a=')) {
+		o["attendanceNumber"] = window.location.href.split('a=')[1][0]
+	}
+
+	o['remote'] = (document.getElementById('remotesession').checked ? true : false)
+
+	let json_string = JSON.stringify(o);
+
+	let xhttp = new XMLHttpRequest();
+	let url = "/api/createAttendanceSession";
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4 && this.status === 200) {
+			var json = JSON.parse(this.responseText);
+			randomID = json.randomID;
+			generateQRCode(json.url_complete);
+			document.getElementById("attendance_link").innerHTML = json.tiny;
+			document.getElementById("view_consecutivecodes").innerHTML = o.consecutivecodes;
+			switchView(1);
+		}
+	};
+
+	xhttp.open("POST", url, true);
+	xhttp.send(json_string);
+}
+
+function loadClassNumber(url) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				let json = JSON.parse(this.responseText);
+				if (window.location.href.split('?')[1].includes('cl')){
+					document.getElementById("class_number").value = window.location.href.split('cl=')[1]
+					document.getElementById("class_number").readOnly=true
+					document.getElementById("class_number").style.cursor = 'default'
+					document.getElementById("inputTitle").value = (json['title'] ? json['title'] : '');
+							document.getElementById("inputTitle").readOnly=true
+					document.getElementById("inputTitle").style.cursor = 'default'
+
+					if(json['extra']) document.getElementById("is_extra").checked = true;
+					document.getElementById("is_extra").disabled = true;
+
+				} else {
+					document.getElementById("class_number").value = json['max(number)']+1;
+				}
+			}
+			else {
+				console.log("Error in loading class number:", this.responseText);
+			}
+		}
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+function mySetValue(id, value) {
+	if(value) {
+		document.getElementById(id).value = value;	
+	}
+}
+
+function loadShiftInfo(url) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				let json = JSON.parse(this.responseText);
+				mySetValue("consecutivecodesrequired", json.consecutive);
+				mySetValue("timetocomplete", json.time);
+				mySetValue("code_length", json.codelength);
+				checkRadio("code_type", json.codetype);
+			}
+			else {
+				console.log("Error in loading shift info:", this.responseText);
+			}
+		}
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+function checkRadio(id, myValue) {
+	let els = document.getElementById(id).querySelectorAll("input");
+	for(let e of els) {
+		if(e.value === myValue) {
+			e.checked = true;
+			return;
+		}
+	}
+}
+
+window.onbeforeunload = function (e) {
+	e = e || window.event;
+
+	if(e) {
+		e.returnValue = "Sure?";
+	}
+
+	return "Sure?";
+};
+
+
+loadName("/api/name");
+loadClassNumber("/api/getnextclassnumber?c="+courseID+'&s='+shift);
+loadShiftInfo("/api/shiftinfo?s="+shift);
+
+document.onkeypress = function (event) {
+	if (event.code === 'NumpadAdd' || event.code === 'BracketLeft') {
+		let d = new Date();
+		console.log('begining counting...')
+		localStorage.setItem('click_counter', '0')
+		localStorage.setItem('duration', d.getTime().toString())
+	} else if (event.code === 'NumpadSubtract' || event.code === 'Slash') {
+		let d = new Date();
+		console.log('finished counting...')
+		console.log('clicks: ', localStorage.getItem('click_counter'))
+		console.log('duration: ', (Number(d.getTime())-Number(localStorage.getItem('duration')))/1000)
+	}
+}
+
+document.onmousedown = function(event) {
+	if (event.button === 0)
+		localStorage.setItem('click_counter', (parseInt(localStorage.getItem('click_counter'))+1).toString())
+}
+
+</script>

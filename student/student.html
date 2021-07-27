@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<head>
+  	<title>I Am (Still) Here!</title>
+	<link rel="icon" type="image/png" href="/img/favicon.png"/>
+</head>
+
+<link rel="stylesheet" type="text/css" href="/style.css">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata">
+
+<script src="/init.js"></script>
+<script src="/this_is_a_prebid-ads_to_test.js"></script>
+
+<body  onload="isAccepted()">
+	<!-- Top banner -->
+	<ul class="navbar">
+		<li class="item-left" style="padding-top: 0"><a href="#" class="name monserrat-black">I AM (STILL) HERE!</a></li>
+		<li class="item-left" style="padding-top: 3px"><span class="name roboto-light" id="IST_NAME"></span></li>
+
+		<li class="item-right"><a href="/logout" class="btn-white"><img src="/img/logout.svg" class="img-button"> Log Out</a></li>
+	</ul>
+	<!-- Top banner -->
+
+	<!--<ul>
+		<li style="float:left"><span class="logoname" >I Am Here!</span></li>
+
+		<li style="float:right"><a href="/logout">Log Out</a></li>
+		<li style="float:right"><span class="name" id="IST_NAME"></span></li>
+	</ul>-->
+
+	<div class="container">
+		<center class="center">
+			<div id="insertCode">
+				<h3>
+					Insert the code here:
+				</h3>
+
+				<div style="text-align:center">
+					<table style="margin: auto">
+						<td valign="middle">
+							<input maxlength="15" type="text" id="input_student"
+								   style="text-transform: uppercase"
+								   autocomplete="nope" inputmode="text">
+						</td>
+						<td valign="middle">
+							<button id="enter_button" type="button" onclick="loadDoc()" disabled>Enter</button>
+						</td>
+					</table>
+				</div>
+			</div>
+
+			<div id="div_c"></div>
+
+			<div class="overlay" style="display: none;"></div>
+			<div id="acceptance-banner" class="confirm" style="display: none; width: 60vw; font-size: 0.8vw">
+				In a classroom environment, there is a need to count the number of attending students.
+				<p>I Am (Still) Here! is system that automates attendance checking and uses device fingerprinting to point out eventual fraud situations.
+				<p>To provide mechanisms of fraud combat, we will gather information provided by the browser, for example, what browser is at use, the plugins installed, the fonts or even the language.
+				<p>We will also gather the location of the user, however we will not have access to that information, once the location goes through a hashing process on the user side
+					and only after, is sent to the server, where it will be stored.
+				<p>In order to register the users attendance, they need to accept the gathering of information previously described, otherwise, the user cannot register their attendance.
+				<p><button class="confirmbtn" onclick="acceptTerms()">Accept the terms and conditions</button></p>
+			</div>
+
+		</center>
+	</div>
+</body>
+
+
+
+<script>
+	function acceptTerms(){
+		let xhttp = new XMLHttpRequest();
+		let url = "/api/acceptterms";
+		xhttp.onreadystatechange = function() {
+			if(this.readyState === 4 && this.status === 200) {
+				document.getElementById("acceptance-banner").style.display='none'
+				while (document.getElementsByClassName('overlay')[0]) {
+					document.getElementsByClassName('overlay')[0].remove();
+				}
+			}
+		}
+		xhttp.open("POST", url, true);
+		xhttp.send();
+	}
+
+	function isAccepted() {
+		let cookie = getCookie('acceptance');
+		if (cookie !== 'true') {
+			document.getElementById("acceptance-banner").style.display=''
+			document.getElementsByClassName('overlay')[0].style.display='';
+		}
+	}
+
+	function getCookie(name) {
+		let nameEQ = name + "=";
+		let ca = document.cookie.split(';');
+		for(let i=0;i < ca.length;i++) {
+			let c = ca[i];
+			while (c.charAt(0)===' ') c = c.substring(1);
+			if (c.indexOf(nameEQ) !== -1) return c.substring(nameEQ.length,c.length);
+		}
+		return null;
+	}
+
+async function digestMessage(message) {
+	const msgUint8 = new TextEncoder().encode(message);                           // encode as (utf-8) Uint8Array
+	const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);           // hash the message
+	const hashArray = Array.from(new Uint8Array(hashBuffer));                     // convert buffer to byte array
+	const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
+	return hashHex;
+}
+
+var optionsGPS = {
+	enableHighAccuracy: true,
+	timeout: 5000,
+	maximumAge: 0
+};
+
+function getPosition() {
+	return new Promise((res, rej) => {
+		if (navigator.geolocation)
+			navigator.geolocation.getCurrentPosition(res, rej, optionsGPS);
+	});
+}
+
+async function getLocation() {
+	let position = await getPosition();  // wait for getPosition to complete
+	let coord = {};
+
+	if (position['coords']['accuracy'] >= 11100 && position['coords']['accuracy'] < 111000) {
+		coord["latitude"] = [await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -4)), null, null, null, null]
+		coord["longitude"] = [await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -4)), null, null, null, null]
+
+	} else if (position['coords']['accuracy'] >= 1110 && position['coords']['accuracy'] < 11100) {
+		coord["latitude"] = [await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -4)), await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -3)), null, null, null]
+		coord["longitude"] = [await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -4)), await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -3)), null, null, null]
+
+	} else if (position['coords']['accuracy'] >= 111 && position['coords']['accuracy'] < 1110) {
+		coord["latitude"] = [await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -4)), await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -3)), await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -2)), null, null]
+		coord["longitude"] = [await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -4)), await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -3)), await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -2)), null, null]
+
+	} else if (position['coords']['accuracy'] >= 11 && position['coords']['accuracy'] < 111) {
+		coord["latitude"] = [await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -4)), await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -3)), await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -2)), await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -1)), null]
+		coord["longitude"] = [await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -4)), await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -3)), await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -2)), await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -1)), null]
+
+	} else if (position['coords']['accuracy'] > 1 && position['coords']['accuracy'] < 11) {
+		coord["latitude"] = [await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -4)), await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -3)), await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -2)), await digestMessage(position['coords']['latitude'].toFixed(5).toString().slice(0, -1)), await digestMessage(position['coords']['latitude'].toFixed(5))]
+		coord["longitude"] = [await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -4)), await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -3)), await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -2)), await digestMessage(position['coords']['longitude'].toFixed(5).toString().slice(0, -1)), await digestMessage(position['coords']['longitude'].toFixed(5))]
+	} else {
+		coord["latitude"] = [null, null, null, null, null]
+		coord["longitude"] = [null, null, null, null, null]
+	}
+	coord['accur'] = position['coords']['accuracy'];
+	return coord;
+}
+
+async function processLocal() {
+	let components = {}
+	if (navigator.geolocation)
+		components['coordinates'] = await getLocation();
+	else
+		components['coordinates'] = null
+	loadInit2(components);
+}
+
+function isRemote(){
+	let xhttp = new XMLHttpRequest();
+	let urlParams = new URLSearchParams(window.location.search);
+	let randomID = parseInt(urlParams.get('c'));
+
+	xhttp.onreadystatechange = async function () {
+		if (this.readyState === 4) {
+			if (this.status === 200) {
+				let isRemote = JSON.parse(this.responseText)
+				if (!isRemote) {
+					init2();
+				}
+			} else {
+				console.log('Cannot discover if class is remote')
+			}
+		}
+	};
+
+	xhttp.open("GET", '/api/isRemoteByRandomID?c='+randomID, true);
+	xhttp.send();
+}
+
+async function processFingerprint(fingerprintJS) {
+	let components = {}
+	components['coordinates'] = null
+
+	let canvas = document.createElement('canvas');
+	let gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+	if (gl) {
+		components['gpu'] = gl.getParameter(gl.getExtension('WEBGL_debug_renderer_info').UNMASKED_RENDERER_WEBGL);
+		canvas.remove();
+	}
+	components['canvas'] = await canvasFP()
+
+	let nav_plug = navigator.plugins
+	let aux_plug = []
+	for (let i = 0; i < nav_plug.length; ++i){
+		aux_plug.push(nav_plug[i].name)
+	}
+	components['plugins'] = aux_plug;
+
+	if (window.canRunAds === undefined)
+		components['adBlock'] = 'enabled'; //true if undef
+	else
+		components['adBlock'] = 'disabled';
+
+	components['useragent'] = navigator.userAgent;
+	components['pixelDepth'] = screen.pixelDepth;
+	components['languages'] = navigator.languages
+	components['colorDepth'] = screen.colorDepth
+	components['deviceMemory'] = navigator.deviceMemory
+	components['hardwareConcurrency'] = navigator.hardwareConcurrency
+	components['screenResolution'] = "[" + screen.width + "," + screen.height + "]"
+	components['availableScreenResolution'] = "[" + screen.availWidth + "," + screen.availHeight + "]"
+	components['sessionStorage'] = window.sessionStorage !== null
+	components['localStorage'] = window.localStorage !== null
+	components['platform'] = navigator.platform
+	components['vendor'] = navigator.vendor
+	components['audio'] = fingerprintJS['audio']['value'];
+	components['fonts'] = fingerprintJS['fonts']['value'];
+
+	loadInit(components);
+}
+
+
+function canvasFP() {
+	var canvas = document.createElement('canvas');
+	var ctx = canvas.getContext('2d');
+	var txt = 'i9asdm..$#po((^@KbXrww!~cz';
+	ctx.textBaseline = "top";
+	ctx.font = "16px 'Arial'";
+	ctx.textBaseline = "alphabetic";
+	ctx.rotate(.05);
+	ctx.fillStyle = "#f60";
+	ctx.fillRect(125, 1, 62, 20);
+	ctx.fillStyle = "#069";
+	ctx.fillText(txt, 2, 15);
+	ctx.fillStyle = "rgba(102, 200, 0, 0.7)";
+	ctx.fillText(txt, 4, 17);
+	ctx.shadowBlur = 10;
+	ctx.shadowColor = "blue";
+	ctx.fillRect(-20, 10, 234, 5);
+	return digestMessage(canvas.toDataURL());
+}
+
+
+
+
+function loadInit(o) {
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				isRemote()
+			} else {
+				console.log("Error in getting components init")
+			}
+		}
+	};
+
+	let json = {};
+	let urlParams = new URLSearchParams(window.location.search);
+	json.randomID = parseInt(urlParams.get('c'));
+	json.my_data = o;
+
+	let json_string = JSON.stringify(json);
+
+	xhttp.open("POST", "/api/init", true);
+	xhttp.send(json_string);
+}
+
+function loadInit2(o) {
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+			} else {
+				console.log("Error in getting components init")
+			}
+		}
+	};
+
+	let json = {};
+	let urlParams = new URLSearchParams(window.location.search);
+	json.randomID = parseInt(urlParams.get('c'));
+	json.my_data = o;
+
+	let json_string = JSON.stringify(json);
+
+	xhttp.open("POST", "/api/init", true);
+	xhttp.send(json_string);
+}
+
+function loadName(url) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				document.getElementById("IST_NAME").innerHTML = this.responseText;
+			} else {
+				document.getElementById("IST_NAME").innerHTML = "<i>error getting username: " + this.status + "</i>";
+			}
+		}
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+loadName("/api/name");
+
+function handleResponse(json) {
+	var isAttFinished = json.isAttFinished;
+	var isCodeCorrect = json.isCodeCorrect;
+	var isSame = json.isSame;
+	var div_c = document.getElementById("div_c");
+
+	if(isAttFinished) {
+		div_c.classList.add("isAttFinished");
+		document.getElementById("input_student").disabled = true;
+		document.getElementById("enter_button").disabled = true;
+		document.getElementById("insertCode").style.display = "none";
+		return "Correct! Attendance check!";
+	} else if(isCodeCorrect){
+		div_c.classList.add("codeCorrect");
+		div_c.classList.remove("isAttFinished");
+		div_c.classList.remove("invalidCode");
+
+		if (json.consecutive_correct === 0){
+			div_c.classList.add("invalidCode");
+			div_c.classList.remove("codeCorrect");
+			div_c.classList.remove("isAttFinished");
+		}
+
+		return (json.consecutive_correct === 0 ? "Invalid code." : "Correct code: "+json.consecutive_correct+ ' out of ' + json.consecutive_codes_total +'.')
+	} else if (isSame)  {
+		div_c.classList.add("codeCorrect");
+		div_c.classList.remove("isAttFinished");
+		div_c.classList.remove("invalidCode");
+
+		return ("Inserted the same code previously. Correct code: "+json.consecutive_correct+ ' out of ' + json.consecutive_codes_total +'.')
+	}
+	div_c.classList.add("invalidCode");
+	div_c.classList.remove("codeCorrect");
+	div_c.classList.remove("isAttFinished");
+	return "Invalid code.";
+}
+
+function init(){
+	(async () => {
+		const fp = await FingerprintJS.load();
+		const result = await fp.get();
+		await processFingerprint(result["components"]);
+	})();
+}
+
+function init2(){(async () => {await processLocal();})();}
+
+//var consecutive_correct = 0;
+
+function loadDoc() {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4 && this.status === 200) {
+			var json = JSON.parse(this.responseText);
+			let txt = handleResponse(json)
+			document.getElementById("div_c").innerHTML = txt;
+			document.getElementById("input_student").value = "";
+			document.getElementById("enter_button").disabled = true;
+		}
+	};
+
+	var json = {};
+	json.input_code = document.getElementById("input_student").value.toUpperCase();
+	var urlParams = new URLSearchParams(window.location.search);
+	json.randomID = parseInt(urlParams.get('c'));
+
+	var json_string = JSON.stringify(json);
+	xhttp.open("POST", "/api/validatecode", true);
+	xhttp.send(json_string);
+}
+
+var input = document.getElementById("input_student");
+var botao = document.getElementById("enter_button");
+input.addEventListener("keyup", function keyDown(event){
+	if(event.keyCode === 13 && this.value.length > 0) {
+		event.preventDefault();
+		loadDoc();
+	}
+	else {
+		botao.disabled = this.value.length <= 0;
+	}
+});
+
+function setNumberK() {
+	document.getElementById("input_student").type = "number";
+}
+init();
+
+</script>

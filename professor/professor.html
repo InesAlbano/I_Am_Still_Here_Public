@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<head>
+  <title>I Am (Still) Here!</title>
+	<link rel="icon" type="image/png" href="/img/favicon.png"/>
+</head>
+
+<link rel="stylesheet" type="text/css" href="/style.css">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata">
+
+<!--<ul>
+	<a href="/professor/courses" style="">
+		<li style="float:left" href="/professor/courses">
+			<span class="logoname" >I Am Here!</span>	
+		</li>
+	</a>
+	<li style="float:left" class="current"><a href="/professor">Home</a></li>
+	<li style="float:left"><a href="/professor/courses">Courses</a></li>
+	<li style="float:left"><a href="/professor/attendance">Attendance</a></li>
+
+	<li style="float:right"><a href="/logout">Log Out</a></li>
+	<li style="float:right"><span class="name" id="IST_NAME">Name</span></li>
+</ul>-->
+
+<!-- Top banner -->
+<ul class="navbar">
+	<li class="item-left" style="padding-top: 0"><a href="/professor/courses" class="name monserrat-black">I AM (STILL) HERE!</a></li>
+	<li class="item-left" style="padding-top: 3px"><span class="name roboto-light" id="IST_NAME"></span></li>
+
+	<li class="item-right"><a href="/logout" class="btn-white"><img src="/img/logout.svg" class="img-button"> Log Out</a></li>
+	<li class="item-right"><a href="/professor/attendance" class="btn-white" style="text-align: center">Attendance</a></li>
+	<li class="item-right"><a href="/professor/courses" class="btn-white" style="text-align: center">Courses</a></li>
+	<li class="item-right"><a href="/professor" class="btn-white" style="text-align: center">Home</a></li>
+</ul>
+<!-- Top banner -->
+
+<div class="container">
+	<center class="center">
+		<h1>
+			Start the attendance checking <a href="/professor/attendance">here</a>!
+		</h1>
+
+	</center>
+</div>
+
+
+<script>
+
+function loadName(url) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				document.getElementById("IST_NAME").innerHTML = this.responseText;
+			} else {
+				document.getElementById("IST_NAME").innerHTML = "<i>error getting username: " + this.status + "</i>";
+			}
+		}
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+loadName("/api/name");
+
+document.onkeypress = function (event) {
+	if (event.code === 'NumpadAdd' || event.code === 'BracketLeft') {
+		let d = new Date();
+		console.log('begining counting...')
+		localStorage.setItem('click_counter', '0')
+		localStorage.setItem('duration', d.getTime().toString())
+	} else if (event.code === 'NumpadSubtract' || event.code === 'Slash') {
+		let d = new Date();
+		console.log('finished counting...')
+		console.log('clicks: ', localStorage.getItem('click_counter'))
+		console.log('duration: ', (Number(d.getTime())-Number(localStorage.getItem('duration')))/1000)
+	}
+}
+
+document.onmousedown = function(event) {
+	if (event.button === 0)
+		localStorage.setItem('click_counter', (parseInt(localStorage.getItem('click_counter'))+1).toString())
+}
+
+</script>

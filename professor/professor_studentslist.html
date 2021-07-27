@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<head>
+  <title>I Am (Still) Here!</title>
+	<link rel="icon" type="image/png" href="/img/favicon.png"/>
+</head>
+
+<link rel="stylesheet" type="text/css" href="/style.css">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata">
+<script src="https://www.w3schools.com/lib/w3.js"></script>
+
+<!-- Top banner -->
+<ul class="navbar">
+	<li class="item-left" style="padding-top: 0"><a href="/professor/courses" class="name monserrat-black">I AM (STILL) HERE!</a></li>
+	<li class="item-left" style="padding-top: 3px"><span class="name roboto-light" id="IST_NAME"></span></li>
+
+	<li class="item-right"><a href="/logout" class="btn-white"><img src="/img/logout.svg" class="img-button"> Log Out</a></li>
+</ul>
+<!-- Top banner -->
+
+<div class="container inlineblock" id="studentslist">
+	<div class="menu-container">
+		<div class="menu-item item-left menu-button">
+			<a href="/professor/classes" class="previous round">&#8249;</a>
+		</div>
+
+		<div id="downloaddiv" class="menu-item item-right menu-button">
+			<a class="previous round" href='#'
+				onclick="loadFromServer('/api/attendanceflow?c='+courseID, '/api/attendanceflow', true)"
+				title="Download students' attendance flow table">
+				<span class="download">&#x2B06;</span>
+			</a>
+		</div>
+
+		<div class="menu-item item-left menu-title">
+			<span id="courseName_id"></span>
+		</div>
+
+	</div>
+	<center>
+
+		<!--h5>Number of attendances by student</h5-->
+
+		<!-- Students table -->
+		<div class="on center">
+			<p>Attendances per student:</p>
+		</div>
+
+		<div id="loading_sorting" style="display:none"  class="center">
+			<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+			<p>Loading...</p>
+		</div>
+		<table id="allStudentsTable" class="table-margin-students">
+			<template id="allStudentsTemplate"></template>
+		</table>
+	</center>
+</div>
+
+
+<!--In case of no attendances/students-->
+<div class="container inlineblock" id="noAttendances" style="display: none">
+	<div class="menu-container">
+		<div class="menu-item item-left menu-button">
+			<a href="/professor/classes" class="previous round">&#8249;</a>
+		</div>
+
+		<div class="menu-item item-left menu-title">
+			You do not have attendances for this course.
+		</div>
+
+	</div>
+</div>
+
+<div class="margin_bottom"></div>
+
+
+</div>
+	<div id="goUp_spacer"></div>
+	
+	<div class="goUp_div" title="Go up">
+		<a id="goUp" href="#top">&#9650;</a>
+	</div>
+</div>
+
+<script>
+
+const urlParams = new URLSearchParams(window.location.search);
+let courseID = urlParams.get("c");
+let historyTable_error = document.getElementById("historyTable_error");
+
+let TSV_SEPARATOR = "\t";
+
+function goTo(url) {
+	window.location.replace(url);
+}
+
+function sortTables(column_nr) {
+	let loading_sorting = document.getElementById("loading_sorting");
+	loading_sorting.style.display = "";
+	setTimeout(function(){
+		w3.sortHTML('#allStudentsTable', '.clickable', 'td:nth-child(' + column_nr + ')');
+		loading_sorting.style.display = "none";
+	}, 200);
+}
+
+function jsonToTSV(json) {
+	let tsv_flow = "";
+	for(let k = 0; k < json.length; k++) {
+		tsv_flow += json[k].ist_id + TSV_SEPARATOR + json[k].name + TSV_SEPARATOR + json[k].c + "\n";
+	}
+	window.open("data:text/tab-separated-values;charset=utf-16," + encodeURI(tsv_flow)+"_blank");
+}
+
+function loadFromServer(url, url_short, isToExport = false, table = null, template = null, ist_id = null, name = null, count = null) {
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				switch(url_short) {
+					case "/api/name":
+						document.getElementById("IST_NAME").innerHTML = this.responseText;
+						break;
+					case "/api/attendanceflow":
+						if(isToExport) {
+							jsonToTSV(JSON.parse(this.responseText));
+						} else {
+							showTable(JSON.parse(this.responseText), "/api/attendanceflow");
+						}
+						break;
+					case "/api/getMaxNClass":
+						addColumnsToTable(JSON.parse(this.responseText), loadFromServer)
+						break;
+					case "/api/getAttendedClasses":
+						let classList = [];
+						for (let i = 0; i < JSON.parse(this.responseText).length; ++i){
+							classList.push(JSON.parse(this.responseText)[i].class)
+						}
+						addToTable(table, template, ist_id, name, count, classList);
+						break;
+				}
+			} else {
+				switch(url_short) {
+					case "/api/name":
+						document.getElementById("IST_NAME").innerHTML = "<i>error getting username: " + this.status + "</i>";
+						break;
+				}
+			}
+		}
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+function showTable(responseText, request) {
+	switch(request) {
+		case "/api/attendanceflow":
+			let template = document.getElementById("allStudentsTemplate");
+			let table = document.getElementById("allStudentsTable");
+			//removeTrs(table.getElementsByTagName("tr"));
+
+			if(responseText.length > 0) {
+				// to get the course name
+				document.getElementById("courseName_id").innerHTML = responseText[0].courseName;
+				document.getElementById("downloaddiv").style.display = "";
+				document.getElementById("noAttendances").style.display = "none";
+				document.getElementById("studentslist").style.display = "";
+				for(let i = 0; i < responseText.length; i++){
+					let rows_i = responseText[i];
+					loadFromServer("/api/getAttendedClasses?c="+courseID+'&sid='+rows_i.ist_id, "/api/getAttendedClasses", false, table, template, rows_i.ist_id, rows_i.name, rows_i.count)
+				}
+			} else {
+				document.getElementById("noAttendances").style.display = "";
+				document.getElementById("downloaddiv").style.display = "none";
+				document.getElementById("studentslist").style.display = "none";				
+
+			}
+		break;
+	}
+};
+
+function addToTable(table, template, col1, col2, col3, classList) {
+	let tr_clone = template.querySelector("tr").cloneNode(true);
+	let tds = tr_clone.children;
+	tds[0].innerText = col1;
+	tds[1].innerText = col2.split(' ')[0] + ' ' + col2.split(' ')[col2.split(' ').length-1];
+	tds[tds.length-1].innerText = col3;
+
+	console.log(classList)
+	for (let i = 0; i < listOfClasses.length; ++i){
+		if (classList.includes(classList[i])) {
+			let index = listOfClasses.indexOf(classList[i])
+			console.log(classList[i], index)
+			tds[index+2].innerHTML = '<img src="/img/check.svg" class="img-button" alt="">';
+		}
+	}
+	table.appendChild(tr_clone);
+
+}
+
+function removeTrs(old_tr) {
+	for(let l = old_tr.length-1; l > 0; l--) {
+		old_tr[l].parentElement.removeChild(old_tr[l]);
+	}
+}
+
+const listOfClasses = []
+
+function addColumnsToTable(classList, callback){
+	// -------- for table ----------
+	let table = document.getElementById("allStudentsTable");
+	{
+		let tr = document.createElement('tr')
+		tr.style.textAlign = 'center'
+
+		let thID = document.createElement('th')
+		thID.className = "th-sortable"
+		thID.onclick = function () {
+			sortTables(1)
+		}
+		let ist_id = document.createTextNode('IST ID')
+		thID.appendChild(ist_id)
+		tr.appendChild(thID)
+
+		let thName = document.createElement('th')
+		thName.className = "th-sortable"
+		thName.onclick = function () {
+			sortTables(2)
+		}
+		let name = document.createTextNode('Name')
+		thName.appendChild(name)
+		tr.appendChild(thName)
+
+		// for n classes
+		for (let i = 0; i < classList.length; ++i) {
+			let th = document.createElement('th')
+			let number = document.createTextNode(classList[i].class)
+			listOfClasses.push(classList[i].class)
+			th.appendChild(number)
+			tr.appendChild(th)
+		}
+
+		let thNAttended = document.createElement('th')
+		thNAttended.className = "th-sortable"
+		thNAttended.onclick = function () {
+			sortTables(3)
+		}
+		let n = document.createTextNode('#')
+		thNAttended.appendChild(n)
+		tr.appendChild(thNAttended)
+
+		table.appendChild(tr)
+	}
+
+	// ------- for template --------
+	let template = document.getElementById('allStudentsTemplate')
+	{
+		let nColumns = table.rows[0].cells.length
+
+		let tr = document.createElement('tr')
+		tr.style.textAlign = 'center'
+		tr.setAttribute('class', 'clickable')
+		for (let i = 0; i < nColumns; ++i){
+			let td = document.createElement('td')
+			tr.appendChild(td)
+		}
+		template.appendChild(tr)
+	}
+
+	callback("/api/attendanceflow?c="+courseID, "/api/attendanceflow");
+}
+
+loadFromServer("/api/name", "/api/name");
+loadFromServer("/api/getMaxNClass?c="+courseID, "/api/getMaxNClass");
+
+document.onkeypress = function (event) {
+	if (event.code === 'NumpadAdd' || event.code === 'BracketLeft') {
+		let d = new Date();
+		console.log('begining counting...')
+		localStorage.setItem('click_counter', '0')
+		localStorage.setItem('duration', d.getTime().toString())
+	} else if (event.code === 'NumpadSubtract' || event.code === 'Slash') {
+		let d = new Date();
+		console.log('finished counting...')
+		console.log('clicks: ', localStorage.getItem('click_counter'))
+		console.log('duration: ', (Number(d.getTime())-Number(localStorage.getItem('duration')))/1000)
+	}
+}
+
+document.onmousedown = function(event) {
+	if (event.button === 0)
+		localStorage.setItem('click_counter', (parseInt(localStorage.getItem('click_counter'))+1).toString())
+}
+
+</script>

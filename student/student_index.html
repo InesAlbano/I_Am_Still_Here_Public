@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<head>
+ 	 <title>I Am (Still) Here!</title>
+	<link rel="icon" type="image/png" href="/img/favicon.png"/>
+</head>
+
+<link rel="stylesheet" type="text/css" href="/style.css">
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata">
+
+<!-- Top banner -->
+<ul class="navbar">
+	<li class="item-left" style="padding-top: 0"><a href="#" class="name monserrat-black">I AM (STILL) HERE!</a></li>
+	<li class="item-left" style="padding-top: 3px"><span class="name roboto-light" id="IST_NAME"></span></li>
+
+	<li class="item-right"><a href="/logout" class="btn-white"><img src="/img/logout.svg" class="img-button"> Log Out</a></li>
+</ul>
+<!-- Top banner -->
+
+<div class="container">
+	<center class="center">
+		<h3 id="try_again" style="display: none; color: #B42424">
+			Invalid attendance code, please try again.
+		</h3>
+		<h3>
+			Scan the QR code, type the link or insert the attendance's code here:
+		</h3>
+
+		<input type="number" name="attendanceID" hint="attendance code" id="code_input"></input>
+		<button id="enter_button" type="button" onclick="goToAttendance()" disabled>Enter</button>
+	</center>
+</div>
+
+
+<script>
+
+function loadName(url) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				document.getElementById("IST_NAME").innerHTML = this.responseText;
+			} else {
+				document.getElementById("IST_NAME").innerHTML = "<i>error getting username: " + this.status + "</i>";
+			}
+		}
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+loadName("/api/name");
+
+function goToAttendance() {
+	let code = document.getElementById("code_input").value;
+	window.location.replace("/a?c="+code);
+}
+
+var input = document.getElementById("code_input");
+var botao = document.getElementById("enter_button");
+input.addEventListener("keyup", function keyDown(event){
+	if(event.keyCode == 13 && this.value.length > 0) {
+		event.preventDefault();
+		loadDoc();
+	}
+	else {
+		botao.disabled = this.value.length <= 0;
+	}
+});
+
+function isInvalid() {
+	let cookie = getCookie('invalid_code');
+	if (cookie === 'true') {
+		document.getElementById('try_again').style.display = '';
+	}
+}
+
+function getCookie(name) {
+	let nameEQ = name + "=";
+	let ca = document.cookie.split(';');
+	for(let i=0;i < ca.length;i++) {
+		let c = ca[i];
+		while (c.charAt(0)===' ') c = c.substring(1);
+		if (c.indexOf(nameEQ) !== -1) return c.substring(nameEQ.length,c.length);
+	}
+	return null;
+}
+
+isInvalid();
+
+</script>

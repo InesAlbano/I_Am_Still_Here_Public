@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+	<head>
+		<link rel="stylesheet" type="text/css" href="style.css">
+
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata">
+		<link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+	</head>
+
+
+
+
+
+<body scroll="no" style="background-color: #2087DB; overflow-y: hidden;">
+	<header style="z-index: 2;">
+		<div>
+			<a class="logo" href="#">I AM <span class=accent>STILL</span> HERE!</a>
+		</div>
+	  </header>
+
+	<img id="img-login1" src="img/insights-article-meeting-students-expectations-for-a-digital-campus.jpg" alt="">
+	<img id="img-login2" src="img/insights-article-meeting-students-expectations-for-a-digital-campus-m.jpg" alt="">
+
+
+    <!-- ***** Main Banner Area Start ***** -->
+	<div class="center-elements login-container" style="overflow: hidden;">
+		<div class="center-elements">
+			<h2 style="font-size: 2vw;">Attendace System</h2>
+			<h1 style="font-size: 4vw;">I AM <span style="color: #162d41;">STILL</span> HERE!</h1>
+			<h3 style="font-size: 1.5vw;">Sign in <span style="color: #97C0E5;">with</span></h3>
+			<div class="main-button">
+				<div><button onclick="window.location.replace('/login')" class="fenix-button">
+					Fenix Authentication
+				</button></div>
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+
+	<div class='footer'>
+	<p>Copyright © 2021 Inês Albano | Prof. Daniel Gonçalves</p>
+	</div>
+
+</body>
+
+<style>
+	/* headers */
+h1{
+    font-family: Montserrat;
+    color: white;
+    text-align: center;
+}
+
+h2{
+    font-family: Montserrat;
+    color: #97C0E5;
+    text-align: center;
+}
+
+h3{
+    font-family: Montserrat;
+    color: #162d41;
+    text-align: center;
+}
+
+#img-login1{
+	min-height: 100%;
+	min-width: 1024px;
+
+	width: 100%;
+	height: auto;
+
+	position: fixed;
+	top: 0;
+	left: 0;
+
+	padding-top:3%;
+	opacity: 40%;
+	z-index: -1;
+}
+#img-login2{
+	min-height: 100%;
+	min-width: 200px;
+
+	width: 100%;
+	height: auto;
+
+	position: fixed;
+	top: 0;
+	left: 0;
+
+	padding-top:3%;
+	opacity: 40%;
+	z-index: -1;
+}
+
+#img-login1 {display:block;}
+#img-login2 {display:none}
+
+@media all and (max-width: 499px) {
+	#img-login1 {display: none;}
+	#img-login2 {display: block;}
+}
+
+
+/* login */
+.login-container{
+    width: 100%;
+    height: 100%;
+    /*background: #2087DB;*/ 
+
+}
+
+.center-elements{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.center-inline{
+    position: fixed;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.shadow{
+    padding: 10px;
+    box-shadow: 10px 10px #2087DB;
+}
+
+/* buttons */
+
+.fenix-button{
+    background-color: white;
+    opacity: 80%;
+    color: black;
+    font-style: italic;
+    text-align: center;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 2px solid white;
+    transition-duration: 0.4s;
+}
+
+.fenix-button:hover{
+    background-color: #ffffff;
+    opacity: 40%;
+    border: 2px solid #ffffff;
+}
+
+/* nav bar */
+
+
+
+/* footer */
+.footer{
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color:#97C0E5;
+    color: white;
+    text-align: center;
+}
+
+/* footer */
+header{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background-color: #97C0E5;
+    color: white;
+    text-align: center;
+    padding-top: 1%;
+    padding-bottom: 1%;
+}
+
+
+.logo{
+    font: Monserrate;
+    font-weight: bold;
+    font-size: larger;
+    float: left;
+    color: #162d41;
+    padding-left: 1%;
+}
+
+.logo:hover{
+    color: #162d41;
+}
+
+.logo:link{
+    text-decoration: none;    
+
+}
+.accent{
+    color: white;
+}
+
+</style>
+
+<script>
+
+</script>

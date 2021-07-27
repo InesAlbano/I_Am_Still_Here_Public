@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<head>
+  <title>I Am (Still) Here!</title>
+	<link rel="icon" type="image/png" href="/img/favicon.png"/>
+</head>
+
+<link rel="stylesheet" type="text/css" href="/style.css">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata">
+
+<script src="https://www.w3schools.com/lib/w3.js"></script>
+
+<body>
+	<!-- Top banner -->
+
+	<ul class="navbar">
+		<li class="item-left" style="padding-top: 0"><a href="/professor/courses" class="name monserrat-black">I AM (STILL) HERE!</a></li>
+		<li class="item-left" style="padding-top: 3px"><span class="name roboto-light" id="IST_NAME"></span></li>
+
+		<li class="item-right"><a href="/logout" class="btn-white"><img src="/img/logout.svg" class="img-button"> Log Out</a></li>
+	</ul>
+	<!-- Top banner -->
+
+
+	<div class="menu-container center">
+		<div class="menu-item item-left">
+			<a href="/professor/classes" class="previous round">&#8249;</a>
+		</div>
+
+		<div class="item-left" style="transform: translateY(25%); color: white">
+			<button id="seeAdmin" class="btn-blue" onclick="changeDisplay('adminlist')" style="margin-right: 10px; height: auto;"><img src="/img/admin_person.svg" class="img-button"> See administrators</button>
+			<button id="seeUsers" class="btn-blue" onclick="changeDisplay('studentslist')" style="margin-right: 10px; height: auto"><img src="/img/user_person.svg" class="img-button"> See users</button>
+			<button id="seeAcademicTerms" class="btn-blue" onclick="changeDisplay('academictermlist')" style="margin-right: 10px; height: auto"><img src="/img/calendar.svg" class="img-button"> Define academic terms</button>
+			<button id="seeCodesCourses" class="btn-blue" onclick="changeDisplay('codescourseslist')" style="height: auto"><img src="/img/typing.svg" class="img-button"> Define codes configuration</button>
+		</div>
+	</div>
+
+
+	<div id="adminlist" style="" class="center hidden">
+		<!-- Administrator's table -->
+		<div id="loading_sorting" style="display:none">
+			<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+			<p>Loading...</p>
+		</div>
+		<p class="center">Administrators</p>
+		<table id="allAdminTable" class="center table-margin">
+			<tr>
+				<th class="th-sortable" onclick="sortTables(1)">IST ID</th>
+				<th class="th-sortable" onclick="sortTables(2)">Name</th>
+			</tr>
+
+			<template id="allAdminTemplate">
+				<tr>
+					<td name="ist_id"></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<button type="button">-</button>
+			</template>
+		</table>
+	</div>
+
+	<div id="studentslist" class="center hidden">
+		<!-- Students table -->
+		<div id="loading_sorting" style="display:none"> <!-- TODO correct -->
+			<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+			<p>Loading...</p>
+		</div>
+
+		<label for="input_user" class="center">Search user:</label><input id="input_user" name="ist_id" placeholder="IST ID (ist1XXXXX)" autocomplete="off" onkeyup="searchUserList()">
+
+		<div>
+			<div id="allStudentsDiv" style="">
+				<table id="allStudentsTable" class="table-margin-admin">
+					<tr>
+						<th class="th-sortable" onclick="sortTables(1)">IST ID</th>
+						<th class="th-sortable" onclick="sortTables(2)">Name</th>
+						<th>Status</th> <!-- Student or Professor -->
+						<th>Enrolled courses</th>
+						<th>Teaching courses</th>
+						<th>Admin</th>
+					</tr>
+
+					<template id="allStudentsTemplate">
+						<tr style="text-align: center">
+							<td name="ist_id"></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</template>
+				</table>
+			</div>
+
+			<div style="width: 50%; float: right; margin-right: -20%;">
+				<table id="coursesStudentTable" class="table-margin-admin hidden">
+					<tr>
+						<th>Academic Term</th>
+						<th>Course Name</th>
+						<th>Attended</th>
+					</tr>
+
+					<template id="coursesStudentTemplate">
+						<tr class="clickable" style="text-align: center">
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
+					</template>
+				</table>
+
+				<table id="coursesProfessorTable" class="table-margin-admin hidden">
+					<tr>
+						<th>Course ID</th>
+						<th>Course Name</th>
+					</tr>
+
+					<template id="coursesProfessorTemplate">
+						<tr class="clickable" style="text-align: center">
+							<td></td>
+							<td></td>
+						</tr>
+					</template>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div id="academictermlist" class="center hidden">
+		<div>
+
+			<div style="width: 40%; float: left">
+				<!-- Academic Terms' table -->
+				<table id="allAcademicTermsTable" class="table-margin">
+					<tr>
+						<th>Academic Terms</th>
+					</tr>
+
+					<template id="allAcademicTermsTemplate">
+						<tr>
+							<td></td>
+							<td><button type="button" onclick="manuallyAcademicTerm(this)"><img src="/img/delete.svg" className="img-button" width="20px"></button></td>
+						</tr>
+					</template>
+				</table>
+			</div>
+
+			<div style="width: 60%; float: right">
+				<!-- Academic Terms creation -->
+				<form id="insertAcademicTerm">
+					<p style="background:#3982AB; padding: 4px; height:30px; margin-top: 3px; font-weight: bold; color: white">Create new academic term</p>
+
+					<div style="width: 45%; float: left; height: 110px; padding: 15px 0 0 0">
+						<label for="inputAcademicTerm"></label>
+						<input id="inputAcademicTerm" type="text" name="academicterm" placeholder="1º Semestre 2021/2022">
+					</div>
+
+					<span style="width: 5%; float: left; height: 110px; padding: 20px 0 0 0; margin-left: -6px">
+						OR
+					</span>
+
+					<div style="width: 50%; float: right">
+						<div>
+							<div id="years">
+								<label for="year" style="padding: 5px 10px 5px 5px">Year:</label>
+							</div>
+
+							<div id="terms">
+								<label for="term" style="padding: 5px">Term:</label>
+								<select name="terms" id="term" style="width:225px;">
+									<option value=""></option>
+									<option value="1º Semestre">1º Semestre</option>
+									<option value="2º Semestre">2º Semestre</option>
+									<option value="1º Quarter">1º Quarter</option>
+									<option value="2º Quarter">2º Quarter</option>
+									<option value="3º Quarter">3º Quarter</option>
+									<option value="4º Quarter">4º Quarter</option>
+									<option value="No Term">No Term</option>
+								</select>
+							</div>
+						</div>
+						<button onclick="insertAcademicTerm()" type="button" style="float: right; margin-top: 10px; padding: 5px 10px 5px 10px" class="btn-grey">Add</button>
+					</div>
+				</form>
+			</div>
+
+		</div>
+
+
+
+	</div>
+
+	<div id="codescourseslist" style="" class="center hidden">
+		<!-- Courses's table -->
+		<table id="allCoursesTable" class="table-margin center" style="text-align: center">
+			<tr>
+				<th rowspan="2">CourseID</th>
+				<th rowspan="2">Course Name</th>
+				<th rowspan="2">Academic Term</th>
+				<th colspan="4">Overwrite Code Configuration</th>
+			</tr>
+			<tr>
+				<th>Type</th>
+				<th>Length</th>
+				<th>Consecutive</th>
+				<th>Time</th>
+			</tr>
+
+			<template id="allCoursesTemplate">
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td title="Edit Course"><button onclick="editCourse(this.closest('tr'))"><img src="/img/pencil.svg" class="img-button"></button></td>
+					<!--<td><button onclick="manuallyDeleteCourse(this)"><img src="/img/delete.svg" className="img-button" width="20px"></button></td>-->
+				</tr>
+			</template>
+		</table>
+	</div>
+
+</body>
+
+
+<script>
+
+function loadName(url) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				document.getElementById("IST_NAME").innerHTML = this.responseText;
+			} else {
+				document.getElementById("IST_NAME").innerHTML = "<i>error getting username: " + this.status + "</i>";
+			}
+		}
+	};
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+function sortTables(column_nr) {
+	let loading_sorting = document.getElementById("loading_sorting");
+	loading_sorting.style.display = "";
+	setTimeout(function(){
+		w3.sortHTML('#allStudentsTable', '.clickable', 'td:nth-child(' + column_nr + ')');
+		loading_sorting.style.display = "none";
+	}, 200);
+}
+
+function loadFromServer(url) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				loadFromServerEnrolled(JSON.parse(this.responseText))
+			}
+		}
+	};
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
+function loadFromServerEnrolled(allUsers) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				loadFromServerTeaching(allUsers, JSON.parse(this.responseText))
+			}
+		}
+	};
+	xhttp.open("GET", "/api/getallenrolled", true);
+	xhttp.send();
+}
+
+function loadFromServerTeaching(allUsers, allEnrolled) {
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				let allTeaching = JSON.parse(this.responseText)
+				let completeUsers = []
+				for (let i = 0; i < allUsers.length; ++i){
+					let aux = allUsers[i]
+					let allClasses = []
+					let allTeachers = []
+
+					for (let j = 0; j < allEnrolled.length; ++j){
+						if (aux['ist_id'] === allEnrolled[j]['ist_id']){
+							let write = true;
+							for (let k = 0; k < allClasses.length; ++k) {
+								if (allClasses[k]['courseName'] === allEnrolled[j]['courseName']) write = false;
+							}
+							if (write) {
+								let classes = {}
+								classes['academicTerm'] = allEnrolled[j]['academicTerm']
+								classes['courseName'] = allEnrolled[j]['courseName']
+								classes['attended'] = allEnrolled[j]['attended']
+								allClasses.push(classes)
+							}
+						}
+						for (let x = 0; x < allTeaching.length; ++x){
+							if (aux['ist_id'] === allTeaching[x]['ist_id']){
+								let write = true;
+								for (let y = 0; y < allTeachers.length; ++y) {
+									if (allTeachers[y]['courseName'] === allTeaching[x]['courseName']) write = false;
+								}
+								if (write) {
+									let teaching = {}
+									teaching['academicTerm'] = allTeaching[x]['academicTerm']
+									teaching['courseName'] = allTeaching[x]['courseName']
+									allTeachers.push(teaching)
+								}
+							}
+						}
+					}
+					aux['enrolled'] = allClasses
+					aux['teaching'] = allTeachers
+					completeUsers.push(aux)
+				}
+
+				showTable(completeUsers);
+				loadExistingAcademicTerms();
+				loadExistingCourses();
+			}
+		}
+	};
+	xhttp.open("GET", "/api/getallteaching", true);
+	xhttp.send();
+}
+
+function showTable(responseText) {
+	let template = document.getElementById("allStudentsTemplate");
+	let templateAdmin = document.getElementById("allAdminTemplate");
+	let table = document.getElementById("allStudentsTable");
+	let tableAdmin = document.getElementById("allAdminTable");
+	removeTrs(table.getElementsByTagName("tr"));
+	removeTrs(tableAdmin.getElementsByTagName("tr"));
+
+	if(responseText.length > 0) {
+		// to get the course name
+		document.getElementById("studentslist").style.display = "";
+		document.getElementById("adminlist").style.display = "";
+		for(let i = 0; i < responseText.length; i++){
+			let rows_i = responseText[i];
+			if (rows_i.role === null) rows_i.role='0'
+			/* to decide de status */
+			if (rows_i.role.toString() !== '1' && rows_i.teaching.length < 1)
+				addToTable(table, template, rows_i.ist_id, rows_i.name, 'Student', rows_i.enrolled.length, rows_i.teaching.length, rows_i);
+			else if (rows_i.role.toString() !== '1' && rows_i.teaching.length > 0 && rows_i.enrolled.length < 1)
+				addToTable(table, template, rows_i.ist_id, rows_i.name, 'Professor', rows_i.enrolled.length, rows_i.teaching.length, rows_i);
+			else if (rows_i.role.toString() !== '1' && rows_i.teaching.length > 0 && rows_i.enrolled.length > 0)
+				addToTable(table, template, rows_i.ist_id, rows_i.name, 'Professor student', rows_i.enrolled.length, rows_i.teaching.length, rows_i);
+
+			else if (rows_i.role.toString() === '1' && rows_i.teaching.length > 0 && rows_i.enrolled.length < 1)
+				addToTable(table, template, rows_i.ist_id, rows_i.name, 'Admin professor', rows_i.enrolled.length, rows_i.teaching.length, rows_i);
+			else if (rows_i.role.toString() === '1' && rows_i.teaching.length > 0 && rows_i.enrolled.length > 0)
+				addToTable(table, template, rows_i.ist_id, rows_i.name, 'Admin professor student', rows_i.enrolled.length, rows_i.teaching.length, rows_i);
+			else if (rows_i.role.toString() === '1' && rows_i.teaching.length < 1 && rows_i.enrolled.length > 0)
+				addToTable(table, template, rows_i.ist_id, rows_i.name, 'Admin student', rows_i.enrolled.length, rows_i.teaching.length, rows_i);
+			else if (rows_i.role.toString() === '1' && rows_i.teaching.length < 1 && rows_i.enrolled.length < 1)
+				addToTable(table, template, rows_i.ist_id, rows_i.name, 'Admin', rows_i.enrolled.length, rows_i.teaching.length, rows_i);
+			else
+				addToTable(table, template, rows_i.ist_id, rows_i.name, 'User', rows_i.enrolled.length, rows_i.teaching.length, rows_i);
+
+			/* insert into admin table */
+			if (rows_i.role.toString() === '1'){
+				addToTableAdmin(tableAdmin, templateAdmin, rows_i.ist_id, rows_i.name);
+			}
+		}
+	} else {
+		document.getElementById("studentslist").style.display = "none";
+		document.getElementById("adminlist").style.display = "none";
+	}
+}
+
+function addToTable(table, template, col1, col2, role, nClasses, nTeaching, row) {
+	let tr_clone = template.content.querySelector("tr").cloneNode(true);
+	let tds = tr_clone.children;
+
+	let x;
+	for(x = 0; x < tds.length-1; x++) {
+		tds[x].innerText = arguments[x+2];
+	}
+	tds[3].setAttribute('class', 'text-link')
+	tds[3].onclick = function(){
+		removeTrs(document.getElementById('coursesStudentTable').getElementsByTagName("tr"))
+		for (let i = 0; i < row.enrolled.length; ++i){
+			addToCourseTable(document.getElementById('coursesStudentTable'), document.getElementById('coursesStudentTemplate'), row.enrolled[i].academicTerm, row.enrolled[i].courseName, row.enrolled[i].attended)
+		}
+
+		if (document.getElementById('allStudentsDiv').classList.length === 0) {
+			document.getElementById('coursesStudentTable').setAttribute('name', tds[0].innerHTML)
+			document.getElementById('allStudentsDiv').setAttribute('style', 'width: 90%; float: left; margin-left: -20%;')
+			document.getElementById('allStudentsDiv').setAttribute('class', 'compressed')
+			document.getElementById('coursesStudentTable').setAttribute('class', 'table-table-margin-admin')
+			document.getElementById('coursesProfessorTable').setAttribute('class', 'table-table-margin-admin hidden')
+			tds[3].style.backgroundColor = '#b1d0e0'
+		} else {
+			tds[3].style.backgroundColor = tr_clone.style.backgroundColor
+			if (document.getElementById('coursesProfessorTable').classList.length === 1){
+				document.getElementById('coursesStudentTable').setAttribute('name', tds[0].innerHTML)
+				document.getElementById('coursesStudentTable').setAttribute('class', 'table-table-margin-admin')
+				document.getElementById('coursesProfessorTable').setAttribute('class', 'table-table-margin-admin hidden')
+			} else {
+				if (tds[0].innerHTML === document.getElementById('coursesStudentTable').getAttribute('name') || tds[0].innerHTML === document.getElementById('coursesProfessorTable').getAttribute('name')) {
+					document.getElementById('coursesStudentTable').setAttribute('name', '')
+					document.getElementById('allStudentsDiv').setAttribute('style', 'width: 100%; float: center; margin-left: 0;')
+					document.getElementById('allStudentsDiv').setAttribute('class', '')
+					document.getElementById('coursesStudentTable').setAttribute('class', 'table-table-margin-admin hidden')
+					document.getElementById('coursesProfessorTable').setAttribute('class', 'table-table-margin-admin hidden')
+				} else {
+					document.getElementById('coursesStudentTable').setAttribute('name', tds[0].innerHTML)
+				}
+			}
+		}
+
+	}
+	tds[4].setAttribute('class', 'text-link')
+	tds[4].onclick = function(){
+		removeTrs(document.getElementById('coursesProfessorTable').getElementsByTagName("tr"))
+		for (let i = 0; i < row.teaching.length; ++i){
+			addToCourseTable(document.getElementById('coursesProfessorTable'), document.getElementById('coursesProfessorTemplate'), row.teaching[i].academicTerm, row.teaching[i].courseName)
+		}
+
+		if (document.getElementById('allStudentsDiv').classList.length === 0) {
+			document.getElementById('coursesProfessorTable').setAttribute('name', tds[0].innerHTML)
+			document.getElementById('allStudentsDiv').setAttribute('style', 'width: 90%; float: left; margin-left: -20%;')
+			document.getElementById('allStudentsDiv').setAttribute('class', 'compressed')
+			document.getElementById('coursesStudentTable').setAttribute('class', 'table-margin-admin hidden')
+			document.getElementById('coursesProfessorTable').setAttribute('class', 'table-margin-admin')
+			tds[4].style.backgroundColor = '#b1d0e0'
+		} else {
+			tds[4].style.backgroundColor = tr_clone.style.backgroundColor
+			if (document.getElementById('coursesStudentTable').classList.length === 1) {
+				document.getElementById('coursesProfessorTable').setAttribute('name', tds[0].innerHTML)
+				document.getElementById('coursesStudentTable').setAttribute('class', 'table-margin-admin hidden')
+				document.getElementById('coursesProfessorTable').setAttribute('class', 'table-margin-admin')
+			} else {
+				if (tds[0].innerHTML === document.getElementById('coursesStudentTable').getAttribute('name') || tds[0].innerHTML === document.getElementById('coursesProfessorTable').getAttribute('name')) {
+					document.getElementById('coursesProfessorTable').setAttribute('name', '')
+					document.getElementById('allStudentsDiv').setAttribute('style', 'width: 100%; float: center; margin-left: 0;')
+					document.getElementById('allStudentsDiv').setAttribute('class', '')
+					document.getElementById('coursesStudentTable').setAttribute('class', 'table-margin-admin hidden')
+					document.getElementById('coursesProfessorTable').setAttribute('class', 'table-margin-admin hidden')
+				} else {
+					document.getElementById('coursesProfessorTable').setAttribute('name', tds[0].innerHTML)
+				}
+			}
+		}
+	};
+
+	if (role.includes('Admin')) {
+		let label = document.createElement('label');
+		label.setAttribute('class', 'switch');
+
+		let input = document.createElement('input');
+		input.setAttribute('type', 'checkbox');
+		input.setAttribute('id', 'slider-admin');
+		input.checked = true;
+		input.onclick = function(){
+			disableScreen();
+			removeAdmin(label);
+		};
+
+		let span = document.createElement('span');
+		span.setAttribute('class', 'slider round');
+
+		label.appendChild(input)
+		label.appendChild(span)
+		tds[tds.length-1].appendChild(label);
+
+	} else {
+		let label = document.createElement('label');
+		label.setAttribute('class', 'switch');
+
+		let input = document.createElement('input');
+		input.setAttribute('type', 'checkbox');
+		input.setAttribute('id', 'slider-admin');
+		input.checked = false;
+		input.onclick = function() {
+			disableScreen();
+			addAdmin(label);
+		};
+
+		let span = document.createElement('span');
+		span.setAttribute('class', 'slider round');
+
+		label.appendChild(input)
+		label.appendChild(span)
+		tds[tds.length-1].appendChild(label);
+
+	}
+	table.appendChild(tr_clone);
+}
+
+function addToTableAdmin(table, template, row1, row2) {
+	let tr_clone = template.content.querySelector("tr").cloneNode(true);
+	let tds = tr_clone.children;
+
+	let x;
+	for(x = 0; x < tds.length-1; x++) {
+		tds[x].innerText = arguments[x+2];
+	}
+
+	let btn = document.createElement("button");
+	btn.name = "removeAdmin";
+	btn.value = "removeAdmin";
+	btn.innerHTML = "<img src=\"/img/delete.svg\" className=\"img-button\" width=\"20px\">";
+	btn.onclick = function(){
+		disableScreen();
+		removeAdmin(btn);
+	};
+
+	tds[tds.length-1].appendChild(btn);
+	table.appendChild(tr_clone);
+}
+
+function addToCourseTable(table, template, courseID, coursename, classesattended = null) {
+	let tr_clone = template.content.querySelector("tr").cloneNode(true);
+	let tds = tr_clone.children;
+
+	let x;
+	for(x = 0; x < tds.length; x++) {
+		tds[x].innerText = arguments[x+2];
+	}
+
+	tr_clone.onclick = function() {
+		window.location.replace("/professor/new?c=" + courseID);
+	};
+
+	table.appendChild(tr_clone);
+}
+
+function searchUserList(){
+	let userTable = document.getElementById('allStudentsTable')
+	let input = document.getElementById('input_user').value.toString()
+
+	for (let i = 1; i < userTable.rows.length; ++i) {
+		userTable.rows[i].style.display = ''
+	}
+
+	for (let i = 1; i < userTable.rows.length; ++i) {
+		if (!userTable.rows[i].cells[0].innerText.toString().toLowerCase().includes(input) && !userTable.rows[i].cells[1].innerText.toLowerCase().includes(input)) {
+			userTable.rows[i].style.display = 'none'
+		}
+	}
+}
+
+
+function disableScreen() {
+	let div= document.createElement("div");
+	div.className += "overlay";
+	document.body.appendChild(div);
+}
+
+
+function removeTrs(old_tr) {
+	for(let l = old_tr.length-1; l > 0; l--) {
+		old_tr[l].parentElement.removeChild(old_tr[l]);
+	}
+}
+
+
+
+function removeAdmin(btn){
+	let ist_id = btn.parentElement.parentElement.children.namedItem("ist_id").textContent;
+
+	let div = document.createElement("div");
+	div.classList.add("confirm");
+
+	let spanCancel = document.createElement("span");
+	spanCancel.classList.add("cancelbtn");
+	spanCancel.onclick = function() {
+		document.getElementById('slider-admin').checked = true;
+		this.parentElement.style.display='none';
+		while (document.getElementsByClassName('overlay')[0]) {
+			document.getElementsByClassName('overlay')[0].remove();
+		}
+	};
+	spanCancel.innerText = "Cancel";
+
+	let spanConfirm = document.createElement("span");
+	spanConfirm.classList.add("confirmbtn");
+	spanConfirm.onclick = function() {
+		document.getElementById('slider-admin').checked = false;
+		myConfirm(ist_id, "remove");
+		this.parentElement.style.display='none';
+		while (document.getElementsByClassName('overlay')[0]) {
+			document.getElementsByClassName('overlay')[0].remove();
+		}
+	};
+	spanConfirm.innerText = "Confirm";
+
+	div.innerText = "Are you sure you want to remove this administrator?\n\n";
+
+	document.body.appendChild(div);
+	div.appendChild(spanCancel);
+	div.appendChild(spanConfirm);
+}
+
+function addAdmin(btn){
+	let ist_id = btn.parentElement.parentElement.children.namedItem("ist_id").textContent;
+
+	let div = document.createElement("div");
+	div.classList.add("confirm");
+
+	let spanCancel = document.createElement("span");
+	spanCancel.classList.add("cancelbtn");
+	spanCancel.onclick = function() {
+		document.getElementById('slider-admin').checked = false;
+		this.parentElement.style.display='none';
+		while (document.getElementsByClassName('overlay')[0]) {
+			document.getElementsByClassName('overlay')[0].remove();
+		}
+	};
+	spanCancel.innerText = "Cancel";
+
+	let spanConfirm = document.createElement("span");
+	spanConfirm.classList.add("confirmbtn");
+	spanConfirm.onclick = function() {
+		document.getElementById('slider-admin').checked = true;
+		myConfirm(ist_id, "add");
+		this.parentElement.style.display='none';
+		while (document.getElementsByClassName('overlay')[0]) {
+			document.getElementsByClassName('overlay')[0].remove();
+		}
+	};
+	spanConfirm.innerText = "Confirm";
+
+	div.innerText = "Are you sure you want to add as administrator?\n\n";
+
+	document.body.appendChild(div);
+	div.appendChild(spanCancel);
+	div.appendChild(spanConfirm);
+
+}
+
+
+var remove = 0;
+var add = 1;
+function myConfirm(ist_id, option){
+	if (option === 'add') {
+		updateAdmin("/api/updateAdmin", ist_id, add);
+	} else if (option === 'remove') {
+		updateAdmin('/api/updateAdmin', ist_id, remove);
+	}
+}
+
+function updateAdmin(url, ist_id, operation){
+	var o = {};
+	o.ist_id = ist_id;
+	o.operation = operation;
+	var json_string = JSON.stringify(o);
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if (this.status === 200) {
+				loadFromServer("/api/getallusers", "/api/getallusers");
+			} else {
+				console.log("Error updating:", this.status);
+
+				let divOver = document.createElement("div");
+				divOver.className += "overlay";
+				document.body.appendChild(divOver);
+
+				let div = document.createElement("div");
+				div.classList.add("alert");
+
+				let spanCancel = document.createElement("span");
+				spanCancel.classList.add("closebtn");
+				spanCancel.onclick = function() {
+					this.parentElement.style.display='none';
+					while (document.getElementsByClassName('overlay')[0]) {
+						document.getElementsByClassName('overlay')[0].remove();
+					}
+				};
+				spanCancel.innerText = '×';
+
+				div.innerHTML = "<strong>Error</strong> updating. Try again please.";
+
+				div.appendChild(spanCancel);
+				document.body.appendChild(div);
+			}
+		}
+	};
+	xhttp.open("POST", url, true);
+	xhttp.send(json_string);
+}
+
+function addYears(){
+	let currentYear = new Date().getFullYear();
+	let previousYear = currentYear - 1;
+	let previouspreviousYear = previousYear - 1;
+	let nextYear = currentYear + 1;
+	let nextnextYear = nextYear + 1;
+
+	let yearcombo = [];
+	yearcombo.push(previouspreviousYear + "/" + previousYear);
+	yearcombo.push(previousYear + "/" + currentYear);
+	yearcombo.push(currentYear + "/" + nextYear);
+	yearcombo.push(nextYear + "/" + nextnextYear);
+
+	let academicYearDiv = document.getElementById('years')
+
+	let select = document.createElement('select')
+	select.setAttribute('name', 'year')
+	select.setAttribute('id', 'year')
+	select.style.width = '225px'
+
+	let input = document.createElement('option')
+	input.setAttribute('label', ' ')
+	select.appendChild(input)
+	for (let i = 0; i < yearcombo.length; ++i){
+		let input = document.createElement('option')
+		input.setAttribute('value', yearcombo[i])
+		input.setAttribute('name', yearcombo[i])
+		let text = document.createElement('span')
+		text.innerText = yearcombo[i]
+		input.appendChild(text)
+		select.appendChild(input)
+	}
+	academicYearDiv.appendChild(select)
+}
+
+function changeSemester(){
+	if (document.getElementById('semester1label').style.display === 'none'){
+		document.getElementById('semester1label').style.display = '';
+		document.getElementById('semester2label').style.display = '';
+	} else {
+		document.getElementById('semester1label').style.display = 'none';
+		document.getElementById('semester2label').style.display = 'none';
+	}
+}
+
+function changeQuarter(){
+	if (document.getElementById('quarter1label').style.display === 'none'){
+		document.getElementById('quarter1label').style.display = '';
+		document.getElementById('quarter2label').style.display = '';
+		document.getElementById('quarter3label').style.display = '';
+		document.getElementById('quarter4label').style.display = '';
+	} else {
+		document.getElementById('quarter1label').style.display = 'none';
+		document.getElementById('quarter2label').style.display = 'none';
+		document.getElementById('quarter3label').style.display = 'none';
+		document.getElementById('quarter4label').style.display = 'none';
+	}
+}
+
+
+function changeDisplay(elem){
+	let div = document.getElementById(elem)
+	if (div.classList.contains('hidden')) div.setAttribute('class', 'center')
+	else div.setAttribute('class', 'center hidden')
+}
+
+
+function loadExistingAcademicTerms(){
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				let json = JSON.parse(this.responseText);
+				let template = document.getElementById("allAcademicTermsTemplate");
+				let table = document.getElementById("allAcademicTermsTable");
+				removeTrs(table.getElementsByTagName("tr"));
+
+				if(json.length > 0) {
+					for (let i = 0; i < json.length; ++i){
+						let rows_i = json[i];
+						let tr_clone = template.content.querySelector("tr").cloneNode(true);
+						let tds = tr_clone.children;
+						tds[0].innerText = rows_i.academicTerm;
+						table.appendChild(tr_clone);
+					}
+				}
+				//showAcademicTerms(json);
+			}
+		}
+	};
+
+	xhttp.open("GET", "/api/existingacademicterms", true);
+	xhttp.send();
+}
+
+function insertAcademicTerm() {
+	let formEl = document.getElementById("insertAcademicTerm");
+	if(!formEl.checkValidity()) {
+		formEl.reportValidity();
+		return;
+	}
+	let data = new FormData(formEl);
+	let o = {};
+	for(let e of data) {
+		o[e[0]] = e[1];
+	}
+
+	if (!o['academicterm'])
+		if(o['year'] && o['terms']) {
+			o['academicterm'] = o['terms'] + ' ' + o['year']
+			delete o['terms']
+			delete o['year']
+		}
+		else if (!o['year'] && o['terms']) {
+			o['academicterm'] = o['terms']
+			delete o['terms']
+		}
+		else if (o['year'] && !o['terms']) {
+			o['academicterm'] = o['year']
+			delete o['year']
+		}
+		else
+			return;
+
+
+	let json_string = JSON.stringify(o);
+
+	// get existing  academic terms
+	let tableAT = document.getElementById('allAcademicTermsTable')
+	let academicTerms = []
+	for (let i = 1; i < tableAT.rows.length; ++i){
+		academicTerms.push(tableAT.rows[i].cells[0].innerText)
+	}
+
+	if (academicTerms.includes(o.academicterm)){
+		let divOver = document.createElement("div");
+		divOver.className += "overlay";
+		document.body.appendChild(divOver);
+
+		let div = document.createElement("div");
+		div.classList.add("alert");
+
+		let spanCancel = document.createElement("span");
+		spanCancel.classList.add("closebtn");
+		spanCancel.onclick = function() {
+			this.parentElement.style.display='none';
+			while (document.getElementsByClassName('overlay')[0]) {
+				document.getElementsByClassName('overlay')[0].remove();
+			}
+		};
+		spanCancel.innerText = '×';
+
+		div.innerHTML = "<strong>Error</strong> creating academic term. Academic term already exists.";
+
+		div.appendChild(spanCancel);
+		document.body.appendChild(div);
+	} else {
+		let divOver = document.createElement("div");
+		divOver.className += "overlay";
+		document.body.appendChild(divOver);
+
+		let div = document.createElement("div");
+		div.classList.add("confirm");
+
+		let spanCancel = document.createElement("span");
+		spanCancel.classList.add("cancelbtn");
+		spanCancel.onclick = function() {
+			this.parentElement.style.display='none';
+			while (document.getElementsByClassName('overlay')[0]) {
+				document.getElementsByClassName('overlay')[0].remove();
+			}
+		};
+		spanCancel.innerText = "Cancel";
+
+		let spanConfirm = document.createElement("span");
+		spanConfirm.classList.add("confirmbtn");
+		spanConfirm.onclick = function() {
+
+			let xhttp = new XMLHttpRequest();
+			let url = "/api/insertacademicterm";
+			xhttp.onreadystatechange = function () {
+				if (this.readyState === 4 && this.status === 200) {
+					formEl.reset();
+					document.getElementById('year').disabled = false;
+					document.getElementById('term').disabled = false;
+					document.getElementById('inputAcademicTerm').disabled = false
+					loadExistingAcademicTerms()
+				}
+			}
+
+			xhttp.open("POST", url, true);
+			xhttp.send(json_string);
+
+			this.parentElement.style.display='none';
+			while (document.getElementsByClassName('overlay')[0]) {
+				document.getElementsByClassName('overlay')[0].remove();
+			}
+		};
+		spanConfirm.innerText = "Confirm";
+
+		div.innerText = "Are you sure you want to add this course?\n\n";
+
+		document.body.appendChild(div);
+		div.appendChild(spanCancel);
+		div.appendChild(spanConfirm);
+	}
+}
+
+function manuallyAcademicTerm(btn){
+	let academicterm = btn.closest('tr').cells[0].innerText;
+	let o = {};
+	o.academicterm = academicterm;
+	let json_string = JSON.stringify(o)
+
+	let divOver = document.createElement("div");
+	divOver.className += "overlay";
+	document.body.appendChild(divOver);
+
+	let div = document.createElement("div");
+	div.classList.add("confirm");
+
+	let spanCancel = document.createElement("span");
+	spanCancel.classList.add("cancelbtn");
+	spanCancel.onclick = function() {
+		this.parentElement.style.display='none';
+		while (document.getElementsByClassName('overlay')[0]) {
+			document.getElementsByClassName('overlay')[0].remove();
+		}
+	};
+	spanCancel.innerText = "Cancel";
+
+	let spanConfirm = document.createElement("span");
+	spanConfirm.classList.add("confirmbtn");
+	spanConfirm.onclick = function() {
+		let url = '/api/manuallyremoveacademicterm?at='+academicterm;
+
+		let xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if(this.readyState === 4) {
+				if(this.status === 200) {
+					loadExistingAcademicTerms();
+				} else {
+					console.log("Error removing academic term:", this.status);
+					myAlert("<strong>Error</strong> academic term. Try again please.")
+				}
+			}
+		};
+		xhttp.open("POST", url, true);
+		xhttp.send(json_string);
+
+
+
+		this.parentElement.style.display='none';
+		while (document.getElementsByClassName('overlay')[0]) {
+			document.getElementsByClassName('overlay')[0].remove();
+		}
+	};
+	spanConfirm.innerText = "Confirm";
+
+	div.innerText = "Are you sure you want to remove this students from this class?\n\n";
+
+	document.body.appendChild(div);
+	div.appendChild(spanCancel);
+	div.appendChild(spanConfirm);
+}
+
+function loadExistingCourses(){
+	// default LN 6 3 10
+	let xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			if(this.status === 200) {
+				let json = JSON.parse(this.responseText);
+				let template = document.getElementById("allCoursesTemplate");
+				let table = document.getElementById("allCoursesTable");
+				while (table.rows.length > 2) {
+					table.deleteRow(table.rows.length-1);
+				}
+
+				if(json.length > 0) {
+					for (let i = 0; i < json.length; ++i){
+						let rows_i = json[i];
+						let tr_clone = template.content.querySelector("tr").cloneNode(true);
+						let tds = tr_clone.children;
+						tds[0].innerText = rows_i.courseID;
+						tds[1].innerText = rows_i.courseName;
+						tds[2].innerText = rows_i.academicTerm;
+						tds[3].innerText = rows_i.codetype;
+						tds[4].innerText = rows_i.codelength;
+						tds[5].innerText = rows_i.consecutive;
+						tds[6].innerText = rows_i.time;
+						table.appendChild(tr_clone);
+					}
+				}
+			}
+		}
+	};
+
+	xhttp.open("GET", "/api/existingcourses", true);
+	xhttp.send();
+}
+
+function editCourse(course_row){
+	let table = document.getElementById('allCoursesTable');
+	let rows = table.rows
+	let editRow
+	let editRowIndex
+	for (let i = 2; i < rows.length; ++i) {
+		if (course_row && course_row.cells[0].innerText === rows[i].cells[0].innerText){
+			editRow = rows[i]
+			editRowIndex = i
+		}
+	}
+	table.deleteRow(editRowIndex);
+	let form_row = table.insertRow(editRowIndex);
+
+	let updateCourseForm = document.createElement('form')
+	updateCourseForm.setAttribute('id', 'updateCourse')
+
+	{
+		/* courseName */
+		let courseName = document.createElement('input')
+		courseName.setAttribute('name', 'courseName')
+		courseName.setAttribute('type', 'text')
+		courseName.setAttribute('form', 'updateCourse')
+		courseName.style.width = '400px'
+		courseName.value = course_row.cells[1].innerText
+
+		/* academic term */
+		let ac = document.createElement('select')
+		ac.setAttribute('name', 'ac_id')
+		ac.setAttribute('form', 'updateCourse')
+		ac.style.width = '210px';
+
+		let ac_table = document.getElementById('allAcademicTermsTable')
+		for (let i = 1; i < ac_table.rows.length; ++i) {
+			if (ac_table.rows[i].cells[0].innerHTML) {
+				let p = document.createElement('option')
+				p.setAttribute('value', ac_table.rows[i].cells[0].innerText)
+				let p_text = document.createTextNode(ac_table.rows[i].cells[0].innerText)
+				p.appendChild(p_text)
+				ac.appendChild(p)
+			}
+		}
+		/* pre chosen academic term */
+		let prev_ac = course_row.cells[0].innerText
+		for (let i = 1; i < ac_table.rows.length; ++i) {
+			if (prev_ac === ac_table.rows[i].cells[0].innerHTML) {
+				ac.selectedIndex = (i - 1).toString()
+			}
+		}
+
+		/* code type */
+		let code_type = document.createElement('select')
+		code_type.setAttribute('name', 'code_type')
+		code_type.setAttribute('form', 'updateCourse')
+
+		let letter = document.createElement('option')
+		letter.setAttribute('value', 'L')
+		let letter_text = document.createTextNode('L')
+		letter.appendChild(letter_text)
+		code_type.appendChild(letter)
+
+		let number = document.createElement('option')
+		number.setAttribute('value', 'N')
+		let number_text = document.createTextNode('N')
+		number.appendChild(number_text)
+		code_type.appendChild(number)
+
+		let letter_number = document.createElement('option')
+		letter_number.setAttribute('value', 'LN')
+		let letter_number_text = document.createTextNode('L + N')
+		letter_number.appendChild(letter_number_text)
+		code_type.appendChild(letter_number)
+
+		/* pre chosen code_type */
+		let prev_chosen_ctype = course_row.cells[2].innerText
+		if (prev_chosen_ctype === 'L') code_type.selectedIndex = '0'
+		else if (prev_chosen_ctype === 'N') code_type.selectedIndex = '1'
+		else if (prev_chosen_ctype === 'LN') code_type.selectedIndex = '2'
+
+		/* code length */
+		let code_length = document.createElement('select')
+		code_length.setAttribute('name', 'code_length')
+		code_length.setAttribute('form', 'updateCourse')
+
+		let len_3 = document.createElement('option')
+		len_3.setAttribute('value', '3')
+		let len_3_text = document.createTextNode('3')
+		len_3.appendChild(len_3_text)
+		code_length.appendChild(len_3)
+
+		let len_4 = document.createElement('option')
+		len_4.setAttribute('value', '4')
+		let len_4_text = document.createTextNode('4')
+		len_4.appendChild(len_4_text)
+		code_length.appendChild(len_4)
+
+		let len_5 = document.createElement('option')
+		len_5.setAttribute('value', '5')
+		let len_5_text = document.createTextNode('5')
+		len_5.appendChild(len_5_text)
+		code_length.appendChild(len_5)
+
+		let len_6 = document.createElement('option')
+		len_6.setAttribute('value', '6')
+		let len_6_text = document.createTextNode('6')
+		len_6.appendChild(len_6_text)
+		code_length.appendChild(len_6)
+
+		let len_7 = document.createElement('option')
+		len_7.setAttribute('value', '7')
+		let len_7_text = document.createTextNode('7')
+		len_7.appendChild(len_7_text)
+		code_length.appendChild(len_7)
+
+		let len_8 = document.createElement('option')
+		len_8.setAttribute('value', '8')
+		let len_8_text = document.createTextNode('8')
+		len_8.appendChild(len_8_text)
+		code_length.appendChild(len_8)
+
+		/* pre chosen code_length */
+		let prev_chocode_length = course_row.cells[3].innerText
+		if (prev_chocode_length === '3') code_length.selectedIndex = '0'
+		else if (prev_chocode_length === '4') code_length.selectedIndex = '1'
+		else if (prev_chocode_length === '5') code_length.selectedIndex = '2'
+		else if (prev_chocode_length === '6') code_length.selectedIndex = '3'
+		else if (prev_chocode_length === '7') code_length.selectedIndex = '4'
+		else if (prev_chocode_length === '8') code_length.selectedIndex = '5'
+
+		/* consecutive codes */
+		let consecutivecodes = document.createElement('select')
+		consecutivecodes.setAttribute('name', 'consecutivecodes')
+		consecutivecodes.setAttribute('form', 'updateCourse')
+
+		let c_2 = document.createElement('option')
+		c_2.setAttribute('value', '2')
+		let c_2_text = document.createTextNode('2')
+		c_2.appendChild(c_2_text)
+		consecutivecodes.appendChild(c_2)
+
+		let c_3 = document.createElement('option')
+		c_3.setAttribute('value', '3')
+		let c_3_text = document.createTextNode('3')
+		c_3.appendChild(c_3_text)
+		consecutivecodes.appendChild(c_3)
+
+		let c_4 = document.createElement('option')
+		c_4.setAttribute('value', '4')
+		let c_4_text = document.createTextNode('4')
+		c_4.appendChild(c_4_text)
+		consecutivecodes.appendChild(c_4)
+
+		let c_5 = document.createElement('option')
+		c_5.setAttribute('value', '5')
+		let c_5_text = document.createTextNode('5')
+		c_5.appendChild(c_5_text)
+		consecutivecodes.appendChild(c_5)
+
+		let c_6 = document.createElement('option')
+		c_6.setAttribute('value', '6')
+		let c_6_text = document.createTextNode('6')
+		c_6.appendChild(c_6_text)
+		consecutivecodes.appendChild(c_6)
+
+		/* pre chosen consecutive */
+		let prev_consecutivecodes = course_row.cells[4].innerText
+		if (prev_consecutivecodes === '2') consecutivecodes.selectedIndex = '0'
+		if (prev_consecutivecodes === '3') consecutivecodes.selectedIndex = '1'
+		else if (prev_consecutivecodes === '4') consecutivecodes.selectedIndex = '2'
+		else if (prev_consecutivecodes === '5') consecutivecodes.selectedIndex = '3'
+		else if (prev_consecutivecodes === '6') consecutivecodes.selectedIndex = '4'
+
+		/* time codes */
+		let code_time = document.createElement('select')
+		code_time.setAttribute('name', 'time')
+		code_time.setAttribute('form', 'updateCourse')
+
+		let t_8 = document.createElement('option')
+		t_8.setAttribute('value', '8')
+		let t_8_text = document.createTextNode('8')
+		t_8.appendChild(t_8_text)
+		code_time.appendChild(t_8)
+
+		let t_9 = document.createElement('option')
+		t_9.setAttribute('value', '9')
+		let t_9_text = document.createTextNode('9')
+		t_9.appendChild(t_9_text)
+		code_time.appendChild(t_9)
+
+		let t_10 = document.createElement('option')
+		t_10.setAttribute('value', '10')
+		let t_10_text = document.createTextNode('10')
+		t_10.appendChild(t_10_text)
+		code_time.appendChild(t_10)
+
+		let t_11 = document.createElement('option')
+		t_11.setAttribute('value', '11')
+		let t_11_text = document.createTextNode('11')
+		t_11.appendChild(t_11_text)
+		code_time.appendChild(t_11)
+
+		let t_12 = document.createElement('option')
+		t_12.setAttribute('value', '12')
+		let t_12_text = document.createTextNode('12')
+		t_12.appendChild(t_12_text)
+		code_time.appendChild(t_12)
+
+		/* pre chosen consecutive */
+		let prev_time = course_row.cells[5].innerText
+		if (prev_time === '8') code_time.selectedIndex = '0'
+		if (prev_time === '9') code_time.selectedIndex = '1'
+		else if (prev_time === '10') code_time.selectedIndex = '2'
+		else if (prev_time === '11') code_time.selectedIndex = '3'
+		else if (prev_time === '12') code_time.selectedIndex = '4'
+
+		/* buttons */
+		let btn_update = document.createElement('button')
+		btn_update.onclick = function() {
+			updateCourse(course_row.cells[0].innerText, btn_update, table, editRowIndex)
+		}
+		let update_text = document.createTextNode('Update')
+		btn_update.appendChild(update_text)
+
+		let btn_cancel = document.createElement('button')
+		btn_cancel.onclick = function(){
+			table.deleteRow(editRowIndex);
+			let new_course_row = table.insertRow(editRowIndex);
+			for (let i = 0; i < course_row.cells.length; ++i){
+				let cell = new_course_row.insertCell(i)
+				cell.style.textAlign = 'center'
+				cell.innerHTML = course_row.cells[i].innerHTML
+			}
+		}
+		let cancel_text = document.createTextNode('Cancel')
+		btn_cancel.appendChild(cancel_text)
+
+
+		updateCourseForm.appendChild(courseName)
+
+		let cell = form_row.insertCell(0)
+		cell.innerHTML = course_row.cells[0].innerText
+		let cell1 = form_row.insertCell(1)
+		cell1.appendChild(updateCourseForm)
+		let cell2 = form_row.insertCell(2)
+		cell2.appendChild(ac)
+		let cell3 = form_row.insertCell(3)
+		let cell4 = form_row.insertCell(4)
+		let cell5 = form_row.insertCell(5)
+		let cell6 = form_row.insertCell(6)
+		cell3.appendChild(code_type)
+		cell4.appendChild(code_length)
+		cell5.appendChild(consecutivecodes)
+		cell6.appendChild(code_time)
+		let cell7 = form_row.insertCell(7)
+		cell7.appendChild(btn_update)
+		//cell7.appendChild(btn_remove)
+		cell7.appendChild(btn_cancel)
+	}
+}
+
+function updateCourse(courseID, btn, table, row){
+	let form_elements = document.getElementById('updateCourse').elements;
+	let o = {}
+	o.courseID = courseID
+	o.courseName = form_elements[0].value;
+	o.academicTerm = form_elements[1].value;
+	o.code_type = form_elements[2].value;
+	o.code_length = form_elements[3].value;
+	o.consecutivecodes = form_elements[4].value;
+	o.time = form_elements[5].value;
+
+	let json_string = JSON.stringify(o);
+	let xhttp = new XMLHttpRequest();
+	let url = "/api/updateCourse";
+	xhttp.onreadystatechange = function() {
+		if(this.readyState === 4 && this.status === 200){
+			btn.disabled = false;
+			table.deleteRow(row);
+			loadExistingCourses();
+
+		}
+	}
+	xhttp.open("POST", url, true);
+	xhttp.send(json_string);
+}
+
+
+loadFromServer("/api/getallusers", "/api/getallusers");
+
+loadName("/api/name");
+
+addYears();
+
+document.getElementById('year').addEventListener('change', function() {
+	document.getElementById('inputAcademicTerm').disabled = !!this.value;
+});
+
+document.getElementById('term').addEventListener('change', function() {
+	document.getElementById('inputAcademicTerm').disabled = !!this.value;
+});
+
+document.getElementById('inputAcademicTerm').addEventListener('input', function() {
+	document.getElementById('year').disabled = !!this.value;
+	document.getElementById('term').disabled = !!this.value;
+});
+
+document.onkeypress = function (event) {
+	if (event.code === 'NumpadAdd' || event.code === 'BracketLeft') {
+		let d = new Date();
+		console.log('begining counting...')
+		localStorage.setItem('click_counter', '0')
+		localStorage.setItem('duration', d.getTime().toString())
+	} else if (event.code === 'NumpadSubtract' || event.code === 'Slash') {
+		let d = new Date();
+		console.log('finished counting...')
+		console.log('clicks: ', localStorage.getItem('click_counter'))
+		console.log('duration: ', (Number(d.getTime())-Number(localStorage.getItem('duration')))/1000)
+	}
+}
+
+document.onmousedown = function(event) {
+	if (event.button === 0)
+		localStorage.setItem('click_counter', (parseInt(localStorage.getItem('click_counter'))+1).toString())
+}
+
+
+</script>
+
+<style>
+	.btn-group button {
+		background-color: #4c70af;
+		border: 1px solid #2246c6;
+		color: white;
+		padding: 10px 24px;
+		cursor: pointer;
+		float: left; 
+	}
+
+	.btn-group button:not(:last-child) {
+		border-right: none; 
+	}
+
+	.btn-group:after {
+		content: "";
+		clear: both;
+		display: table;
+	}
+
+	.btn-group button:hover {
+		background-color: #3e8e41;
+	}
+
+	.flex-container {
+		display: flex;
+	}
+
+	.flex-child {
+		flex: 1 1 0;
+	}
+
+	select{
+		width: 105px;
+	}
+
+	.switch {
+		position: relative;
+		display: inline-block;
+		width: 60px;
+		height: 34px;
+	}
+
+	.switch input {
+		opacity: 0;
+		width: 0;
+		height: 0;
+	}
+
+	.slider {
+		position: absolute;
+		cursor: pointer;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #ccc;
+		-webkit-transition: .4s;
+		transition: .4s;
+	}
+
+	.slider:before {
+		position: absolute;
+		content: "";
+		height: 26px;
+		width: 26px;
+		left: 4px;
+		bottom: 4px;
+		background-color: white;
+		-webkit-transition: .4s;
+		transition: .4s;
+	}
+
+	input:checked + .slider {
+		background-color: #3982AB;
+	}
+
+	input:focus + .slider {
+		box-shadow: 0 0 1px #3982AB;
+	}
+
+	input:checked + .slider:before {
+		-webkit-transform: translateX(26px);
+		-ms-transform: translateX(26px);
+		transform: translateX(26px);
+	}
+
+
+	.slider.round {
+		border-radius: 34px;
+	}
+
+	.slider.round:before {
+		border-radius: 50%;
+	}
+
+
+	.table-margin-admin {
+		margin:3px 10px;
+	}
+</style>

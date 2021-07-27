@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" type="text/css" href="style.css">
+
+<nav id="butoes_teste">
+	<span><a href="/prof?t=L&n=4">L4</a></span>
+	<span><a href="/prof?t=L&n=5">L5</a></span>
+	<span><a href="/prof?t=L&n=6">L6</a></span>
+	<span><a href="/prof?t=L&n=7">L7</a></span>
+	<span><a href="/prof?t=L&n=8">L8</a></span>
+
+	<span><a href="/prof?t=N&n=4">N4</a></span>
+	<span><a href="/prof?t=N&n=5">N5</a></span>
+	<span><a href="/prof?t=N&n=6">N6</a></span>
+	<span><a href="/prof?t=N&n=7">N7</a></span>
+	<span><a href="/prof?t=N&n=8">N8</a></span>
+	<span><a href="/prof?t=LN&n=4">LN4</a></span>
+	<span><a href="/prof?t=LN&n=5">LN5</a></span>
+	<span><a href="/prof?t=LN&n=6">LN6</a></span>
+	<span><a href="/prof?t=LN&n=7">LN7</a></span>
+	<span><a href="/prof?t=LN&n=8">LN8</a></span>
+</nav>
+
+<div id="butoes">
+<button id="b_start" type="button"
+	onclick="loadStatus('/getcode')"
+	title="Generate a new sequence">Start</button>
+<button id="b_stop" type="button"
+	onclick="loadStatus('/getcode/stop')"
+	disabled="true"
+	title="Stop current sequence">Stop</button> 
+</div>
+
+
+<p><span id="time_remaining"></span>s</p>
+<p>Code number <span id="code_counter"></span></p>
+<p><span id="randomcode"></span></p>
+
+<p id="span_c">
+	Insert the code in your browser.
+</p>
+
+<p id="status"> </p>
+
+<script>
+	function loadStatus(url) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if(this.readyState === 4 && this.status === 200) {
+				//document.getElementById("status").innerHTML = this.responseText;
+				updateStatus(this.responseText);
+			}
+		};
+
+		xhttp.open("GET", url, true);
+		xhttp.send();
+	}
+	function updateStatus(jsonStr) {
+		var json = JSON.parse(jsonStr);
+		var code_element = document.getElementById("randomcode");
+		code_element.innerHTML = json.current_code;
+		if(json.current_code == "Expired") {
+			code_element.className = "expired";	// EXPIRED class
+		} else {
+			code_element.className = "";
+		}
+		document.getElementById("code_counter").innerHTML = json.code_counter;
+		document.getElementById("time_remaining").innerHTML = json.time_ms;
+		updateButtons(json.running);
+	}
+	function updateButtons(isStarted){
+		document.getElementById("b_start").disabled = isStarted;
+		document.getElementById("b_stop").disabled = !isStarted;
+	}
+	function loadStatusTimer() {
+		loadStatus('/status');
+	}
+	setInterval(loadStatusTimer, 1000);
+</script>

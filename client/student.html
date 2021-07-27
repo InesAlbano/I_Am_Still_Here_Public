@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="style.css">
+<div style="text-align:center">
+	<input maxlength="15" type="text" id="input_student"
+		style="text-transform: uppercase"
+		autocomplete="nope"> </input>
+
+	<button type="button" onclick="loadDoc()" disabled>Enter</button>
+</div>
+
+<div id="div_c"> </div>
+
+<script>
+	function loadDoc() {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if(this.readyState === 4 && this.status === 200) {
+				document.getElementById("div_c").innerHTML = this.responseText;
+				document.getElementById("input_student").value = "";
+				document.getElementById("botao").disabled = true;
+			}
+		};
+
+		var input_std = document.getElementById("input_student").value.toUpperCase();
+
+		xhttp.open("POST", "/validatecode", true);
+		xhttp.send(input_std);
+	}
+
+	var input = document.getElementById("input_student");
+	var botao = document.getElementById("botao");
+	input.addEventListener("keyup", function keyDown(event){
+		if(event.keyCode === 13 && this.value.length > 0) {
+			event.preventDefault();
+			loadDoc();
+		}
+		else {
+			botao.disabled = this.value.length <= 0;
+		}
+	});
+</script>
