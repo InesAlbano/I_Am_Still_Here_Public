@@ -339,6 +339,7 @@ async function loadStudentsName(db, Code, callback){
 	let studentsName  = {} // ist_id: name
 	await db.getStudentsName(function(err, rows){
 		for (let i = 0; i < rows.length; ++i){
+			if (rows[i]['name'])
 			studentsName[rows[i]['ist_id']] = rows[i]['name'].split(' ')[0] + ' ' + rows[i]['name'].split(' ')[rows[i]['name'].split(' ').length-1]
 		}
 		callback(Code, studentsName)
